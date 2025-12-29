@@ -315,7 +315,7 @@ func buildModels(conf Config, req *plugin.GenerateRequest) []Struct {
 				typ := makePyType(req, column, conf) // TODO: This used to call compiler.ConvertColumn?
 				typ.InnerType = strings.TrimPrefix(typ.InnerType, "models.")
 				s.Fields = append(s.Fields, Field{
-					Name:    column.Name,
+					Name:    escapePythonKeyword(column.Name),
 					Type:    typ,
 					Comment: column.Comment,
 				})
@@ -329,16 +329,34 @@ func buildModels(conf Config, req *plugin.GenerateRequest) []Struct {
 	return structs
 }
 
+// Python reserved keywords that cannot be used as identifiers
+var pythonKeywords = map[string]bool{
+	"False": true, "None": true, "True": true, "and": true, "as": true, "assert": true,
+	"async": true, "await": true, "break": true, "class": true, "continue": true, "def": true,
+	"del": true, "elif": true, "else": true, "except": true, "finally": true, "for": true,
+	"from": true, "global": true, "if": true, "import": true, "in": true, "is": true,
+	"lambda": true, "nonlocal": true, "not": true, "or": true, "pass": true, "raise": true,
+	"return": true, "try": true, "while": true, "with": true, "yield": true,
+}
+
+// escapePythonKeyword adds a trailing underscore if the name is a Python keyword
+func escapePythonKeyword(name string) string {
+	if pythonKeywords[name] {
+		return name + "_"
+	}
+	return name
+}
+
 func columnName(c *plugin.Column, pos int) string {
 	if c.Name != "" {
-		return c.Name
+		return escapePythonKeyword(c.Name)
 	}
 	return fmt.Sprintf("column_%d", pos+1)
 }
 
 func paramName(p *plugin.Parameter) string {
 	if p.Column.Name != "" {
-		return p.Column.Name
+		return escapePythonKeyword(p.Column.Name)
 	}
 	return fmt.Sprintf("dollar_%d", p.Number)
 }
