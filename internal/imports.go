@@ -37,9 +37,6 @@ func structUses(name string, s Struct) bool {
 		if name == "typing.List" && f.Type.IsArray {
 			return true
 		}
-		if name == "typing.Optional" && f.Type.IsNull {
-			return true
-		}
 		if f.Type.InnerType == name {
 			return true
 		}
@@ -50,9 +47,6 @@ func structUses(name string, s Struct) bool {
 func queryValueUses(name string, qv QueryValue) bool {
 	if !qv.isEmpty() {
 		if name == "typing.List" && qv.Typ.IsArray {
-			return true
-		}
-		if name == "typing.Optional" && qv.Typ.IsNull {
 			return true
 		}
 		if qv.IsStruct() && qv.EmitStruct() {
@@ -175,9 +169,6 @@ func (i *importer) queryImportSpecs(fileName string) (map[string]importSpec, map
 	for _, q := range i.Queries {
 		if q.SourceName != fileName {
 			continue
-		}
-		if q.Cmd == ":one" {
-			std["typing.Optional"] = importSpec{Module: "typing", Name: "Optional"}
 		}
 		if q.Cmd == ":many" {
 			if i.C.EmitSyncQuerier {
@@ -359,9 +350,6 @@ func stdImports(uses func(name string) bool) map[string]importSpec {
 	}
 	if uses("typing.List") {
 		std["typing.List"] = importSpec{Module: "typing", Name: "List"}
-	}
-	if uses("typing.Optional") {
-		std["typing.Optional"] = importSpec{Module: "typing", Name: "Optional"}
 	}
 	if uses("Any") {
 		std["typing.Any"] = importSpec{Module: "typing", Name: "Any"}

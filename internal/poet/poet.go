@@ -33,6 +33,20 @@ func Node(node proto) *ast.Node {
 			},
 		}
 
+	case *ast.BinOp:
+		return &ast.Node{
+			Node: &ast.Node_BinOp{
+				BinOp: n,
+			},
+		}
+
+	case *ast.BitOr:
+		return &ast.Node{
+			Node: &ast.Node_BitOr{
+				BitOr: n,
+			},
+		}
+
 	case *ast.AnnAssign:
 		return &ast.Node{
 			Node: &ast.Node_AnnAssign{

@@ -36,6 +36,8 @@ message Node {
     Await await = 28 [json_name="Await"];
     AsyncFor async_for = 29 [json_name="AsyncFor"];
     ImportGroup import_group = 30 [json_name="ImportGroup"];
+    BinOp bin_op = 31 [json_name="BinOp"];
+    BitOr bit_or = 32 [json_name="BitOr"];
   }
 }
 
@@ -47,6 +49,17 @@ message Alias
 message Await
 {
   Node value = 1 [json_name="value"];
+}
+
+message BinOp
+{
+  Node left = 1 [json_name="left"];
+  Node op = 2 [json_name="op"];
+  Node right = 3 [json_name="right"];
+}
+
+message BitOr
+{
 }
 
 message Attribute

@@ -44,9 +44,13 @@ func (t pyType) Annotation() *pyast.Node {
 		ann = subscriptNode("List", ann)
 	}
 	if t.IsNull {
-		ann = subscriptNode("Optional", ann)
+		return poet.BinOp(ann, poet.BitOr(), poet.Constant(nil))
 	}
 	return ann
+}
+
+func unionWithNone(node *pyast.Node) *pyast.Node {
+	return poet.BinOp(node, poet.BitOr(), poet.Constant(nil))
 }
 
 type Field struct {
@@ -1079,7 +1083,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 					),
 					poet.Return(q.Ret.RowNode("row")),
 				)
-				f.Returns = subscriptNode("Optional", q.Ret.Annotation())
+				f.Returns = unionWithNone(q.Ret.Annotation())
 			case ":many":
 				f.Body = append(f.Body,
 					assignNode("result", exec),
@@ -1171,7 +1175,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 					),
 					poet.Return(q.Ret.RowNode("row")),
 				)
-				f.Returns = subscriptNode("Optional", q.Ret.Annotation())
+				f.Returns = unionWithNone(q.Ret.Annotation())
 			case ":many":
 				stream := connMethodNode("stream", q.ConstantName, q.ArgDictNode())
 				f.Body = append(f.Body,

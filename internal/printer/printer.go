@@ -61,6 +61,12 @@ func (w *writer) printNode(node *ast.Node, indent int32) {
 	case *ast.Node_Await:
 		w.printAwait(n.Await, indent)
 
+	case *ast.Node_BinOp:
+		w.printBinOp(n.BinOp, indent)
+
+	case *ast.Node_BitOr:
+		w.print("|")
+
 	case *ast.Node_Call:
 		w.printCall(n.Call, indent)
 
@@ -195,6 +201,14 @@ func (w *writer) printAttribute(a *ast.Attribute, indent int32) {
 func (w *writer) printAwait(n *ast.Await, indent int32) {
 	w.print("await ")
 	w.printNode(n.Value, indent)
+}
+
+func (w *writer) printBinOp(b *ast.BinOp, indent int32) {
+	w.printNode(b.Left, indent)
+	w.print(" ")
+	w.printNode(b.Op, indent)
+	w.print(" ")
+	w.printNode(b.Right, indent)
 }
 
 func (w *writer) printCall(c *ast.Call, indent int32) {

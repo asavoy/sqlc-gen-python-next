@@ -69,6 +69,26 @@ func Name(id string) *ast.Node {
 	}
 }
 
+func BitOr() *ast.Node {
+	return &ast.Node{
+		Node: &ast.Node_BitOr{
+			BitOr: &ast.BitOr{},
+		},
+	}
+}
+
+func BinOp(left *ast.Node, op *ast.Node, right *ast.Node) *ast.Node {
+	return &ast.Node{
+		Node: &ast.Node_BinOp{
+			BinOp: &ast.BinOp{
+				Left:  left,
+				Op:    op,
+				Right: right,
+			},
+		},
+	}
+}
+
 func Return(value *ast.Node) *ast.Node {
 	return &ast.Node{
 		Node: &ast.Node_Return{
