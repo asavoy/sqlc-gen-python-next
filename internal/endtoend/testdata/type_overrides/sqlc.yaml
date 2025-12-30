@@ -1,0 +1,24 @@
+version: '2'
+plugins:
+- name: py
+  wasm:
+    url: file://../../../../bin/sqlc-gen-python.wasm
+    sha256: "500eeb3847d31b243835c3460e522041ef16d3decefbd638067ae4cc3faaa58a"
+sql:
+- schema: schema.sql
+  queries: query.sql
+  engine: postgresql
+  codegen:
+  - plugin: py
+    out: python
+    options:
+      package: python
+      emit_sync_querier: true
+      emit_pydantic_models: true
+      overrides:
+      - column: "articles.metadata"
+        py_import: "my_lib.models"
+        py_type: "ArticleMetadata"
+      - column: "articles.author_id"
+        py_import: "uuid"
+        py_type: "UUID"
