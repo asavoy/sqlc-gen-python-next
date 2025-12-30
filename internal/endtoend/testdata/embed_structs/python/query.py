@@ -3,7 +3,7 @@
 #   sqlc v1.30.0
 # source: query.sql
 import pydantic
-from typing import Iterator, Optional
+from typing import Iterator
 
 import sqlalchemy
 
@@ -44,7 +44,7 @@ class Querier:
     def __init__(self, conn: sqlalchemy.engine.Connection):
         self._conn = conn
 
-    def get_book_with_author(self, *, id: int) -> Optional[GetBookWithAuthorRow]:
+    def get_book_with_author(self, *, id: int) -> GetBookWithAuthorRow | None:
         row = self._conn.execute(sqlalchemy.text(GET_BOOK_WITH_AUTHOR), {"p1": id}).first()
         if row is None:
             return None

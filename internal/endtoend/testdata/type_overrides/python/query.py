@@ -2,7 +2,7 @@
 # versions:
 #   sqlc v1.30.0
 # source: query.sql
-from typing import Any, Optional
+from typing import Any
 import uuid
 
 import my_lib.models
@@ -27,7 +27,7 @@ class Querier:
     def __init__(self, conn: sqlalchemy.engine.Connection):
         self._conn = conn
 
-    def create_article(self, *, metadata: my_lib.models.ArticleMetadata, settings: Optional[Any], author_id: uuid.UUID) -> Optional[models.Article]:
+    def create_article(self, *, metadata: my_lib.models.ArticleMetadata, settings: Any | None, author_id: uuid.UUID) -> models.Article | None:
         row = self._conn.execute(sqlalchemy.text(CREATE_ARTICLE), {"p1": metadata, "p2": settings, "p3": author_id}).first()
         if row is None:
             return None
@@ -38,7 +38,7 @@ class Querier:
             author_id=row[3],
         )
 
-    def get_article(self, *, id: int) -> Optional[models.Article]:
+    def get_article(self, *, id: int) -> models.Article | None:
         row = self._conn.execute(sqlalchemy.text(GET_ARTICLE), {"p1": id}).first()
         if row is None:
             return None

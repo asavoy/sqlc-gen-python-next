@@ -2,8 +2,6 @@
 # versions:
 #   sqlc v1.28.0
 # source: query.sql
-from typing import Optional
-
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 
@@ -29,7 +27,7 @@ class Querier:
     def __init__(self, conn: sqlalchemy.engine.Connection):
         self._conn = conn
 
-    def delete_bar_by_id(self, *, id: int) -> Optional[models.Bar]:
+    def delete_bar_by_id(self, *, id: int) -> models.Bar | None:
         row = self._conn.execute(sqlalchemy.text(DELETE_BAR_BY_ID), {"p1": id}).first()
         if row is None:
             return None
@@ -38,7 +36,7 @@ class Querier:
             name=row[1],
         )
 
-    def delete_exclusion_by_id(self, *, id: int) -> Optional[models.Exclusions]:
+    def delete_exclusion_by_id(self, *, id: int) -> models.Exclusions | None:
         row = self._conn.execute(sqlalchemy.text(DELETE_EXCLUSION_BY_ID), {"p1": id}).first()
         if row is None:
             return None
@@ -47,7 +45,7 @@ class Querier:
             name=row[1],
         )
 
-    def delete_my_data_by_id(self, *, id: int) -> Optional[models.MyData]:
+    def delete_my_data_by_id(self, *, id: int) -> models.MyData | None:
         row = self._conn.execute(sqlalchemy.text(DELETE_MY_DATA_BY_ID), {"p1": id}).first()
         if row is None:
             return None
@@ -61,7 +59,7 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def delete_bar_by_id(self, *, id: int) -> Optional[models.Bar]:
+    async def delete_bar_by_id(self, *, id: int) -> models.Bar | None:
         row = (await self._conn.execute(sqlalchemy.text(DELETE_BAR_BY_ID), {"p1": id})).first()
         if row is None:
             return None
@@ -70,7 +68,7 @@ class AsyncQuerier:
             name=row[1],
         )
 
-    async def delete_exclusion_by_id(self, *, id: int) -> Optional[models.Exclusions]:
+    async def delete_exclusion_by_id(self, *, id: int) -> models.Exclusions | None:
         row = (await self._conn.execute(sqlalchemy.text(DELETE_EXCLUSION_BY_ID), {"p1": id})).first()
         if row is None:
             return None
@@ -79,7 +77,7 @@ class AsyncQuerier:
             name=row[1],
         )
 
-    async def delete_my_data_by_id(self, *, id: int) -> Optional[models.MyData]:
+    async def delete_my_data_by_id(self, *, id: int) -> models.MyData | None:
         row = (await self._conn.execute(sqlalchemy.text(DELETE_MY_DATA_BY_ID), {"p1": id})).first()
         if row is None:
             return None

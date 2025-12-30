@@ -2,7 +2,7 @@
 # versions:
 #   sqlc v1.28.0
 # source: query.sql
-from typing import AsyncIterator, Iterator, Optional
+from typing import AsyncIterator, Iterator
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -41,7 +41,7 @@ class Querier:
     def __init__(self, conn: sqlalchemy.engine.Connection):
         self._conn = conn
 
-    def create_book(self, *, title: str, status: Optional[models.BookStatus]) -> Optional[models.Book]:
+    def create_book(self, *, title: str, status: models.BookStatus | None) -> models.Book | None:
         row = self._conn.execute(sqlalchemy.text(CREATE_BOOK), {"p1": title, "p2": status}).first()
         if row is None:
             return None
@@ -54,7 +54,7 @@ class Querier:
     def delete_book(self, *, id: int) -> None:
         self._conn.execute(sqlalchemy.text(DELETE_BOOK), {"p1": id})
 
-    def get_book(self, *, id: int) -> Optional[models.Book]:
+    def get_book(self, *, id: int) -> models.Book | None:
         row = self._conn.execute(sqlalchemy.text(GET_BOOK), {"p1": id}).first()
         if row is None:
             return None
@@ -78,7 +78,7 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def create_book(self, *, title: str, status: Optional[models.BookStatus]) -> Optional[models.Book]:
+    async def create_book(self, *, title: str, status: models.BookStatus | None) -> models.Book | None:
         row = (await self._conn.execute(sqlalchemy.text(CREATE_BOOK), {"p1": title, "p2": status})).first()
         if row is None:
             return None
@@ -91,7 +91,7 @@ class AsyncQuerier:
     async def delete_book(self, *, id: int) -> None:
         await self._conn.execute(sqlalchemy.text(DELETE_BOOK), {"p1": id})
 
-    async def get_book(self, *, id: int) -> Optional[models.Book]:
+    async def get_book(self, *, id: int) -> models.Book | None:
         row = (await self._conn.execute(sqlalchemy.text(GET_BOOK), {"p1": id})).first()
         if row is None:
             return None

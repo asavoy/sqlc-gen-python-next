@@ -2,7 +2,7 @@
 # versions:
 #   sqlc v1.30.0
 import pydantic
-from typing import Any, Optional
+from typing import Any
 import uuid
 
 import my_lib.models
@@ -11,5 +11,5 @@ import my_lib.models
 class Article(pydantic.BaseModel):
     id: int
     metadata: my_lib.models.ArticleMetadata
-    settings: Optional[Any]
+    settings: Any | None
     author_id: uuid.UUID

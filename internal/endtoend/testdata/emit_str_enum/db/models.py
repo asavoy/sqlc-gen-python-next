@@ -3,7 +3,6 @@
 #   sqlc v1.28.0
 import dataclasses
 import enum
-from typing import Optional
 
 
 class BookStatus(enum.StrEnum):
@@ -16,4 +15,4 @@ class BookStatus(enum.StrEnum):
 class Book:
     id: int
     title: str
-    status: Optional[BookStatus]
+    status: BookStatus | None

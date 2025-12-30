@@ -2,13 +2,12 @@
 # versions:
 #   sqlc v1.30.0
 import pydantic
-from typing import Optional
 
 
 class Item(pydantic.BaseModel):
     id: int
-    class_: Optional[str]
-    import_: Optional[str]
-    def_: Optional[str]
-    pass_: Optional[str]
-    yield_: Optional[str]
+    class_: str | None
+    import_: str | None
+    def_: str | None
+    pass_: str | None
+    yield_: str | None

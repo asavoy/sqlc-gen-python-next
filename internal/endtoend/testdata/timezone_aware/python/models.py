@@ -3,12 +3,11 @@
 #   sqlc v1.30.0
 import datetime
 import pydantic
-from typing import Optional
 
 
 class Event(pydantic.BaseModel):
     id: int
     name: str
     created_at: pydantic.AwareDatetime
-    updated_at: Optional[pydantic.AwareDatetime]
-    event_date: Optional[datetime.datetime]
+    updated_at: pydantic.AwareDatetime | None
+    event_date: datetime.datetime | None

@@ -3,7 +3,6 @@
 #   sqlc v1.30.0
 # source: query.sql
 import datetime
-from typing import Optional
 
 import sqlalchemy
 
@@ -26,7 +25,7 @@ class Querier:
     def __init__(self, conn: sqlalchemy.engine.Connection):
         self._conn = conn
 
-    def create_event(self, *, name: str, created_at: pydantic.AwareDatetime, updated_at: Optional[pydantic.AwareDatetime], event_date: Optional[datetime.datetime]) -> Optional[models.Event]:
+    def create_event(self, *, name: str, created_at: pydantic.AwareDatetime, updated_at: pydantic.AwareDatetime | None, event_date: datetime.datetime | None) -> models.Event | None:
         row = self._conn.execute(sqlalchemy.text(CREATE_EVENT), {
             "p1": name,
             "p2": created_at,
@@ -43,7 +42,7 @@ class Querier:
             event_date=row[4],
         )
 
-    def get_event(self, *, id: int) -> Optional[models.Event]:
+    def get_event(self, *, id: int) -> models.Event | None:
         row = self._conn.execute(sqlalchemy.text(GET_EVENT), {"p1": id}).first()
         if row is None:
             return None

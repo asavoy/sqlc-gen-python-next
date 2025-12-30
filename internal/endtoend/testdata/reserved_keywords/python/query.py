@@ -3,7 +3,6 @@
 #   sqlc v1.30.0
 # source: query.sql
 import pydantic
-from typing import Optional
 
 import sqlalchemy
 
@@ -18,11 +17,11 @@ RETURNING id, class, import, def, pass, yield
 
 
 class CreateItemParams(pydantic.BaseModel):
-    class_: Optional[str]
-    import_: Optional[str]
-    def_: Optional[str]
-    pass_: Optional[str]
-    yield_: Optional[str]
+    class_: str | None
+    import_: str | None
+    def_: str | None
+    pass_: str | None
+    yield_: str | None
 
 
 GET_ITEM_BY_CLASS = """-- name: get_item_by_class \\:one
@@ -34,7 +33,7 @@ class Querier:
     def __init__(self, conn: sqlalchemy.engine.Connection):
         self._conn = conn
 
-    def create_item(self, arg: CreateItemParams) -> Optional[models.Item]:
+    def create_item(self, arg: CreateItemParams) -> models.Item | None:
         row = self._conn.execute(sqlalchemy.text(CREATE_ITEM), {
             "p1": arg.class_,
             "p2": arg.import_,
@@ -53,7 +52,7 @@ class Querier:
             yield_=row[5],
         )
 
-    def get_item_by_class(self, *, class_: Optional[str]) -> Optional[models.Item]:
+    def get_item_by_class(self, *, class_: str | None) -> models.Item | None:
         row = self._conn.execute(sqlalchemy.text(GET_ITEM_BY_CLASS), {"p1": class_}).first()
         if row is None:
             return None

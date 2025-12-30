@@ -2,7 +2,7 @@
 # versions:
 #   sqlc v1.28.0
 # source: query.sql
-from typing import AsyncIterator, Iterator, Optional
+from typing import AsyncIterator, Iterator
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -42,7 +42,7 @@ class Querier:
     def __init__(self, conn: sqlalchemy.engine.Connection):
         self._conn = conn
 
-    def create_author(self, *, name: str, bio: Optional[str]) -> Optional[models.Author]:
+    def create_author(self, *, name: str, bio: str | None) -> models.Author | None:
         row = self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio}).first()
         if row is None:
             return None
@@ -55,7 +55,7 @@ class Querier:
     def delete_author(self, *, id: int) -> None:
         self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
 
-    def get_author(self, *, id: int) -> Optional[models.Author]:
+    def get_author(self, *, id: int) -> models.Author | None:
         row = self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id}).first()
         if row is None:
             return None
@@ -79,7 +79,7 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def create_author(self, *, name: str, bio: Optional[str]) -> Optional[models.Author]:
+    async def create_author(self, *, name: str, bio: str | None) -> models.Author | None:
         row = (await self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio})).first()
         if row is None:
             return None
@@ -92,7 +92,7 @@ class AsyncQuerier:
     async def delete_author(self, *, id: int) -> None:
         await self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
 
-    async def get_author(self, *, id: int) -> Optional[models.Author]:
+    async def get_author(self, *, id: int) -> models.Author | None:
         row = (await self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id})).first()
         if row is None:
             return None

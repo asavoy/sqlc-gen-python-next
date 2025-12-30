@@ -2,10 +2,9 @@
 # versions:
 #   sqlc v1.28.0
 import pydantic
-from typing import Optional
 
 
 class Author(pydantic.BaseModel):
     id: int
     name: str
-    bio: Optional[str]
+    bio: str | None
