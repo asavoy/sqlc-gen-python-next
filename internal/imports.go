@@ -152,6 +152,9 @@ func (i *importer) queryImportSpecs(fileName string) (map[string]importSpec, map
 
 	pkg := make(map[string]importSpec)
 	pkg["sqlalchemy"] = importSpec{Module: "sqlalchemy"}
+	if i.C.EmitSyncQuerier {
+		pkg["sqlalchemy.orm"] = importSpec{Module: "sqlalchemy.orm"}
+	}
 	if i.C.EmitAsyncQuerier {
 		pkg["sqlalchemy.ext.asyncio"] = importSpec{Module: "sqlalchemy.ext.asyncio"}
 	}

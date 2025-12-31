@@ -915,7 +915,11 @@ func querierClassDef() *pyast.ClassDef {
 								},
 								{
 									Arg:        "conn",
-									Annotation: typeRefNode("sqlalchemy", "engine", "Connection"),
+									Annotation: poet.BinOp(
+										typeRefNode("sqlalchemy", "engine", "Connection"),
+										poet.BitOr(),
+										typeRefNode("sqlalchemy", "orm", "Session"),
+									),
 								},
 							},
 						},
@@ -953,7 +957,11 @@ func asyncQuerierClassDef() *pyast.ClassDef {
 								},
 								{
 									Arg:        "conn",
-									Annotation: typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncConnection"),
+									Annotation: poet.BinOp(
+										typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncConnection"),
+										poet.BitOr(),
+										typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncSession"),
+									),
 								},
 							},
 						},
