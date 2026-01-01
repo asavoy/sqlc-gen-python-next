@@ -5,6 +5,7 @@
 import pydantic
 
 import sqlalchemy
+import sqlalchemy.orm
 
 from python import models
 
@@ -30,7 +31,7 @@ SELECT id, class, import, def, pass, yield FROM items WHERE class = :p1
 
 
 class Querier:
-    def __init__(self, conn: sqlalchemy.engine.Connection):
+    def __init__(self, conn: sqlalchemy.engine.Connection | sqlalchemy.orm.Session):
         self._conn = conn
 
     def create_item(self, arg: CreateItemParams) -> models.Item | None:

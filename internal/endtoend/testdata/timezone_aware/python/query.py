@@ -5,6 +5,7 @@
 import datetime
 
 import sqlalchemy
+import sqlalchemy.orm
 
 from python import models
 
@@ -22,7 +23,7 @@ SELECT id, name, created_at, updated_at, event_date FROM events WHERE id = :p1
 
 
 class Querier:
-    def __init__(self, conn: sqlalchemy.engine.Connection):
+    def __init__(self, conn: sqlalchemy.engine.Connection | sqlalchemy.orm.Session):
         self._conn = conn
 
     def create_event(self, *, name: str, created_at: pydantic.AwareDatetime, updated_at: pydantic.AwareDatetime | None, event_date: datetime.datetime | None) -> models.Event | None:

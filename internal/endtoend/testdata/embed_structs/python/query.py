@@ -6,6 +6,7 @@ import pydantic
 from typing import Iterator
 
 import sqlalchemy
+import sqlalchemy.orm
 
 from python import models
 
@@ -41,7 +42,7 @@ class ListBooksWithAuthorsRow(pydantic.BaseModel):
 
 
 class Querier:
-    def __init__(self, conn: sqlalchemy.engine.Connection):
+    def __init__(self, conn: sqlalchemy.engine.Connection | sqlalchemy.orm.Session):
         self._conn = conn
 
     def get_book_with_author(self, *, id: int) -> GetBookWithAuthorRow | None:

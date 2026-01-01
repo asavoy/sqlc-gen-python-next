@@ -6,6 +6,7 @@ from typing import AsyncIterator, Iterator
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
+import sqlalchemy.orm
 
 from db import models
 
@@ -38,7 +39,7 @@ ORDER BY title
 
 
 class Querier:
-    def __init__(self, conn: sqlalchemy.engine.Connection):
+    def __init__(self, conn: sqlalchemy.engine.Connection | sqlalchemy.orm.Session):
         self._conn = conn
 
     def create_book(self, *, title: str, status: models.BookStatus | None) -> models.Book | None:
@@ -75,7 +76,7 @@ class Querier:
 
 
 class AsyncQuerier:
-    def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
+    def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.asyncio.AsyncSession):
         self._conn = conn
 
     async def create_book(self, *, title: str, status: models.BookStatus | None) -> models.Book | None:

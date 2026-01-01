@@ -5,6 +5,7 @@
 from typing import Iterator
 
 import sqlalchemy
+import sqlalchemy.orm
 
 from python import models
 
@@ -27,7 +28,7 @@ SELECT id, name, email, age, created_at FROM users ORDER BY id
 
 
 class Querier:
-    def __init__(self, conn: sqlalchemy.engine.Connection):
+    def __init__(self, conn: sqlalchemy.engine.Connection | sqlalchemy.orm.Session):
         self._conn = conn
 
     def create_user(self, *, name: str, email: str | None, age: int | None, created_at: pydantic.AwareDatetime) -> models.User | None:

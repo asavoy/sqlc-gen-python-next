@@ -4,6 +4,7 @@
 # source: query.sql
 import sqlalchemy
 import sqlalchemy.ext.asyncio
+import sqlalchemy.orm
 
 from querytest import models
 
@@ -14,7 +15,7 @@ DELETE FROM bar WHERE id = :p1
 
 
 class Querier:
-    def __init__(self, conn: sqlalchemy.engine.Connection):
+    def __init__(self, conn: sqlalchemy.engine.Connection | sqlalchemy.orm.Session):
         self._conn = conn
 
     def delete_bar_by_id(self, *, id: int) -> sqlalchemy.engine.Result:
@@ -22,7 +23,7 @@ class Querier:
 
 
 class AsyncQuerier:
-    def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
+    def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.asyncio.AsyncSession):
         self._conn = conn
 
     async def delete_bar_by_id(self, *, id: int) -> sqlalchemy.engine.Result:
