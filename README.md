@@ -1,3 +1,19 @@
+## Fork notes
+
+This is a fork of [sqlc-gen-python](https://github.com/sqlc-dev/sqlc-gen-python) v1.3.0 with the following changes:
+
+- Supports `sqlc.embed()`
+- Supports overriding Python types for specific database columns
+- Supports SQLAlchemy Session/AsyncSession types
+- Enforces timezone-aware datetime types using `pydantic.AwareDatetime`
+- Generates modern Python syntax:
+   - `Type | None` instead of `Optional[Type]`
+   - `list[T]` instead of `List[T]`
+   - Adds `_conn` type annotations to Querier classes
+   - Imports `Iterator` and `AsyncIterator` from `collections.abc` instead of `typing`
+   - Assigns unused results to `_` variable
+- Handles fields with names that conflict with Python reserved keywords
+
 ## Usage
 
 ```yaml
@@ -75,4 +91,32 @@ class Status(str, enum.Enum):
     """Venues can be either open or closed"""
     OPEN = "op!en"
     CLOSED = "clo@sed"
+```
+
+### Type Overrides
+
+Option: `overrides`
+
+You can override the Python type for specific database columns using the `overrides` configuration.
+
+- `column`: The fully-qualified column name in the format `"table_name.column_name"`
+- `py_type`: The Python type to use
+- `py_import`: The module to import the type from
+
+```yaml
+version: "2"
+# ...
+sql:
+  - schema: "schema.sql"
+    queries: "query.sql"
+    engine: postgresql
+    codegen:
+      - out: src/authors
+        plugin: py
+        options:
+          package: authors
+          overrides:
+            - column: "authors.id"
+              py_type: "UUID"
+              py_import: "uuid"
 ```
