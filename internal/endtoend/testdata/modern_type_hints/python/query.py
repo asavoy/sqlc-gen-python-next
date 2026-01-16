@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: query.sql
 from collections.abc import Iterator
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.orm
@@ -43,11 +44,11 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.User(
-            id=row[0],
-            name=row[1],
-            email=row[2],
-            age=row[3],
-            created_at=row[4],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            email=cast(str | None, row[2]),
+            age=cast(int | None, row[3]),
+            created_at=cast(pydantic.AwareDatetime, row[4]),
         )
 
     def get_user(self, *, id: int) -> models.User | None:
@@ -55,20 +56,20 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.User(
-            id=row[0],
-            name=row[1],
-            email=row[2],
-            age=row[3],
-            created_at=row[4],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            email=cast(str | None, row[2]),
+            age=cast(int | None, row[3]),
+            created_at=cast(pydantic.AwareDatetime, row[4]),
         )
 
     def list_users(self) -> Iterator[models.User]:
         result = self._conn.execute(sqlalchemy.text(LIST_USERS))
         for row in result:
             yield models.User(
-                id=row[0],
-                name=row[1],
-                email=row[2],
-                age=row[3],
-                created_at=row[4],
+                id=cast(int, row[0]),
+                name=cast(str, row[1]),
+                email=cast(str | None, row[2]),
+                age=cast(int | None, row[3]),
+                created_at=cast(pydantic.AwareDatetime, row[4]),
             )

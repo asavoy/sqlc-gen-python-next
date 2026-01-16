@@ -2,6 +2,8 @@
 # versions:
 #   sqlc v1.30.0
 # source: query.sql
+from typing import cast
+
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 import sqlalchemy.orm
@@ -35,8 +37,8 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Bar(
-            id=row[0],
-            name=row[1],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )
 
     def delete_exclusion_by_id(self, *, id: int) -> models.Exclusions | None:
@@ -44,8 +46,8 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Exclusions(
-            id=row[0],
-            name=row[1],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )
 
     def delete_my_data_by_id(self, *, id: int) -> models.MyData | None:
@@ -53,8 +55,8 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.MyData(
-            id=row[0],
-            name=row[1],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )
 
 
@@ -69,8 +71,8 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Bar(
-            id=row[0],
-            name=row[1],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )
 
     async def delete_exclusion_by_id(self, *, id: int) -> models.Exclusions | None:
@@ -78,8 +80,8 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Exclusions(
-            id=row[0],
-            name=row[1],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )
 
     async def delete_my_data_by_id(self, *, id: int) -> models.MyData | None:
@@ -87,6 +89,6 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.MyData(
-            id=row[0],
-            name=row[1],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )

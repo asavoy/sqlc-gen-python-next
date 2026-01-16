@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: city.sql
 from collections.abc import AsyncIterator
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -53,8 +54,8 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.City(
-            slug=row[0],
-            name=row[1],
+            slug=cast(str, row[0]),
+            name=cast(str, row[1]),
         )
 
     async def get_city(self, *, slug: str) -> models.City | None:
@@ -62,16 +63,16 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.City(
-            slug=row[0],
-            name=row[1],
+            slug=cast(str, row[0]),
+            name=cast(str, row[1]),
         )
 
     async def list_cities(self) -> AsyncIterator[models.City]:
         result = await self._conn.stream(sqlalchemy.text(LIST_CITIES))
         async for row in result:
             yield models.City(
-                slug=row[0],
-                name=row[1],
+                slug=cast(str, row[0]),
+                name=cast(str, row[1]),
             )
 
     async def update_city_name(self, *, slug: str, name: str) -> None:

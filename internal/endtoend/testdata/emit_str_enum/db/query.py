@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: query.sql
 from collections.abc import AsyncIterator, Iterator
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -49,9 +50,9 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Book(
-            id=row[0],
-            title=row[1],
-            status=row[2],
+            id=cast(int, row[0]),
+            title=cast(str, row[1]),
+            status=cast(models.BookStatus | None, row[2]),
         )
 
     def delete_book(self, *, id: int) -> None:
@@ -62,18 +63,18 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Book(
-            id=row[0],
-            title=row[1],
-            status=row[2],
+            id=cast(int, row[0]),
+            title=cast(str, row[1]),
+            status=cast(models.BookStatus | None, row[2]),
         )
 
     def list_books(self) -> Iterator[models.Book]:
         result = self._conn.execute(sqlalchemy.text(LIST_BOOKS))
         for row in result:
             yield models.Book(
-                id=row[0],
-                title=row[1],
-                status=row[2],
+                id=cast(int, row[0]),
+                title=cast(str, row[1]),
+                status=cast(models.BookStatus | None, row[2]),
             )
 
 
@@ -88,9 +89,9 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Book(
-            id=row[0],
-            title=row[1],
-            status=row[2],
+            id=cast(int, row[0]),
+            title=cast(str, row[1]),
+            status=cast(models.BookStatus | None, row[2]),
         )
 
     async def delete_book(self, *, id: int) -> None:
@@ -101,16 +102,16 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Book(
-            id=row[0],
-            title=row[1],
-            status=row[2],
+            id=cast(int, row[0]),
+            title=cast(str, row[1]),
+            status=cast(models.BookStatus | None, row[2]),
         )
 
     async def list_books(self) -> AsyncIterator[models.Book]:
         result = await self._conn.stream(sqlalchemy.text(LIST_BOOKS))
         async for row in result:
             yield models.Book(
-                id=row[0],
-                title=row[1],
-                status=row[2],
+                id=cast(int, row[0]),
+                title=cast(str, row[1]),
+                status=cast(models.BookStatus | None, row[2]),
             )

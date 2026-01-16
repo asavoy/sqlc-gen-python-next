@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: query.sql
 import datetime
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.orm
@@ -38,11 +39,11 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Event(
-            id=row[0],
-            name=row[1],
-            created_at=row[2],
-            updated_at=row[3],
-            event_date=row[4],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            created_at=cast(pydantic.AwareDatetime, row[2]),
+            updated_at=cast(pydantic.AwareDatetime | None, row[3]),
+            event_date=cast(datetime.datetime | None, row[4]),
         )
 
     def get_event(self, *, id: int) -> models.Event | None:
@@ -50,9 +51,9 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Event(
-            id=row[0],
-            name=row[1],
-            created_at=row[2],
-            updated_at=row[3],
-            event_date=row[4],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            created_at=cast(pydantic.AwareDatetime, row[2]),
+            updated_at=cast(pydantic.AwareDatetime | None, row[3]),
+            event_date=cast(datetime.datetime | None, row[4]),
         )

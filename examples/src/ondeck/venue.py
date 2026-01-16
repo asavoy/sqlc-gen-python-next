@@ -4,6 +4,7 @@
 # source: venue.sql
 from collections.abc import AsyncIterator
 import dataclasses
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -108,7 +109,7 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         })).first()
         if row is None:
             return None
-        return row[0]
+        return cast(int, row[0])
 
     async def delete_venue(self, *, slug: str) -> None:
         _ = await self._conn.execute(sqlalchemy.text(DELETE_VENUE), {"p1": slug})
@@ -118,44 +119,44 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Venue(
-            id=row[0],
-            status=row[1],
-            statuses=row[2],
-            slug=row[3],
-            name=row[4],
-            city=row[5],
-            spotify_playlist=row[6],
-            songkick_id=row[7],
-            tags=row[8],
-            created_at=row[9],
+            id=cast(int, row[0]),
+            status=cast(models.Status, row[1]),
+            statuses=cast(list[models.Status] | None, row[2]),
+            slug=cast(str, row[3]),
+            name=cast(str, row[4]),
+            city=cast(str, row[5]),
+            spotify_playlist=cast(str, row[6]),
+            songkick_id=cast(str | None, row[7]),
+            tags=cast(list[str] | None, row[8]),
+            created_at=cast(datetime.datetime, row[9]),
         )
 
     async def list_venues(self, *, city: str) -> AsyncIterator[models.Venue]:
         result = await self._conn.stream(sqlalchemy.text(LIST_VENUES), {"p1": city})
         async for row in result:
             yield models.Venue(
-                id=row[0],
-                status=row[1],
-                statuses=row[2],
-                slug=row[3],
-                name=row[4],
-                city=row[5],
-                spotify_playlist=row[6],
-                songkick_id=row[7],
-                tags=row[8],
-                created_at=row[9],
+                id=cast(int, row[0]),
+                status=cast(models.Status, row[1]),
+                statuses=cast(list[models.Status] | None, row[2]),
+                slug=cast(str, row[3]),
+                name=cast(str, row[4]),
+                city=cast(str, row[5]),
+                spotify_playlist=cast(str, row[6]),
+                songkick_id=cast(str | None, row[7]),
+                tags=cast(list[str] | None, row[8]),
+                created_at=cast(datetime.datetime, row[9]),
             )
 
     async def update_venue_name(self, *, slug: str, name: str) -> int | None:
         row = (await self._conn.execute(sqlalchemy.text(UPDATE_VENUE_NAME), {"p1": slug, "p2": name})).first()
         if row is None:
             return None
-        return row[0]
+        return cast(int, row[0])
 
     async def venue_count_by_city(self) -> AsyncIterator[VenueCountByCityRow]:
         result = await self._conn.stream(sqlalchemy.text(VENUE_COUNT_BY_CITY))
         async for row in result:
             yield VenueCountByCityRow(
-                city=row[0],
-                count=row[1],
+                city=cast(str, row[0]),
+                count=cast(int, row[1]),
             )

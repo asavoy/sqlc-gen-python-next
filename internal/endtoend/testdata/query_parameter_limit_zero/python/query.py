@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: query.sql
 import dataclasses
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio

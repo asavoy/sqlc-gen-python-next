@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: query.sql
 import pydantic
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.orm
@@ -47,12 +48,12 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Item(
-            id=row[0],
-            class_=row[1],
-            import_=row[2],
-            def_=row[3],
-            pass_=row[4],
-            yield_=row[5],
+            id=cast(int, row[0]),
+            class_=cast(str | None, row[1]),
+            import_=cast(str | None, row[2]),
+            def_=cast(str | None, row[3]),
+            pass_=cast(str | None, row[4]),
+            yield_=cast(str | None, row[5]),
         )
 
     def get_item_by_class(self, *, class_: str | None) -> models.Item | None:
@@ -60,10 +61,10 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Item(
-            id=row[0],
-            class_=row[1],
-            import_=row[2],
-            def_=row[3],
-            pass_=row[4],
-            yield_=row[5],
+            id=cast(int, row[0]),
+            class_=cast(str | None, row[1]),
+            import_=cast(str | None, row[2]),
+            def_=cast(str | None, row[3]),
+            pass_=cast(str | None, row[4]),
+            yield_=cast(str | None, row[5]),
         )

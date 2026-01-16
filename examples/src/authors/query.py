@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: query.sql
 from collections.abc import AsyncIterator, Iterator
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -50,9 +51,9 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Author(
-            id=row[0],
-            name=row[1],
-            bio=row[2],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            bio=cast(str | None, row[2]),
         )
 
     def delete_author(self, *, id: int) -> None:
@@ -63,18 +64,18 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Author(
-            id=row[0],
-            name=row[1],
-            bio=row[2],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            bio=cast(str | None, row[2]),
         )
 
     def list_authors(self) -> Iterator[models.Author]:
         result = self._conn.execute(sqlalchemy.text(LIST_AUTHORS))
         for row in result:
             yield models.Author(
-                id=row[0],
-                name=row[1],
-                bio=row[2],
+                id=cast(int, row[0]),
+                name=cast(str, row[1]),
+                bio=cast(str | None, row[2]),
             )
 
 
@@ -89,9 +90,9 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Author(
-            id=row[0],
-            name=row[1],
-            bio=row[2],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            bio=cast(str | None, row[2]),
         )
 
     async def delete_author(self, *, id: int) -> None:
@@ -102,16 +103,16 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Author(
-            id=row[0],
-            name=row[1],
-            bio=row[2],
+            id=cast(int, row[0]),
+            name=cast(str, row[1]),
+            bio=cast(str | None, row[2]),
         )
 
     async def list_authors(self) -> AsyncIterator[models.Author]:
         result = await self._conn.stream(sqlalchemy.text(LIST_AUTHORS))
         async for row in result:
             yield models.Author(
-                id=row[0],
-                name=row[1],
-                bio=row[2],
+                id=cast(int, row[0]),
+                name=cast(str, row[1]),
+                bio=cast(str | None, row[2]),
             )

@@ -2,6 +2,8 @@
 # versions:
 #   sqlc v1.30.0
 # source: query.sql
+from typing import cast
+
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 import sqlalchemy.orm

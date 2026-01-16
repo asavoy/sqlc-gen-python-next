@@ -3,6 +3,7 @@
 #   sqlc v1.30.0
 # source: query-building.sql
 from collections.abc import AsyncIterator
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -35,7 +36,7 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         row = (await self._conn.execute(sqlalchemy.text(COUNT_PILOTS))).first()
         if row is None:
             return None
-        return row[0]
+        return cast(int, row[0])
 
     async def delete_pilot(self, *, id: int) -> None:
         _ = await self._conn.execute(sqlalchemy.text(DELETE_PILOT), {"p1": id})
@@ -44,6 +45,6 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         result = await self._conn.stream(sqlalchemy.text(LIST_PILOTS))
         async for row in result:
             yield models.Pilot(
-                id=row[0],
-                name=row[1],
+                id=cast(int, row[0]),
+                name=cast(str, row[1]),
             )

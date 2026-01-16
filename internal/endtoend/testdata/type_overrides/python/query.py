@@ -2,7 +2,7 @@
 # versions:
 #   sqlc v1.30.0
 # source: query.sql
-from typing import Any
+from typing import Any, cast
 import uuid
 
 import my_lib.models
@@ -35,10 +35,10 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Article(
-            id=row[0],
-            metadata=row[1],
-            settings=row[2],
-            author_id=row[3],
+            id=cast(int, row[0]),
+            metadata=cast(my_lib.models.ArticleMetadata, row[1]),
+            settings=cast(Any | None, row[2]),
+            author_id=cast(uuid.UUID, row[3]),
         )
 
     def get_article(self, *, id: int) -> models.Article | None:
@@ -46,8 +46,8 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         if row is None:
             return None
         return models.Article(
-            id=row[0],
-            metadata=row[1],
-            settings=row[2],
-            author_id=row[3],
+            id=cast(int, row[0]),
+            metadata=cast(my_lib.models.ArticleMetadata, row[1]),
+            settings=cast(Any | None, row[2]),
+            author_id=cast(uuid.UUID, row[3]),
         )

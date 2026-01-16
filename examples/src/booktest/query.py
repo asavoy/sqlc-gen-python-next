@@ -5,6 +5,7 @@
 from collections.abc import AsyncIterator
 import dataclasses
 import datetime
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -121,25 +122,25 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         result = await self._conn.stream(sqlalchemy.text(BOOKS_BY_TAGS), {"p1": dollar_1})
         async for row in result:
             yield BooksByTagsRow(
-                book_id=row[0],
-                title=row[1],
-                name=row[2],
-                isbn=row[3],
-                tags=row[4],
+                book_id=cast(int, row[0]),
+                title=cast(str, row[1]),
+                name=cast(str | None, row[2]),
+                isbn=cast(str, row[3]),
+                tags=cast(list[str], row[4]),
             )
 
     async def books_by_title_year(self, *, title: str, year: int) -> AsyncIterator[models.Book]:
         result = await self._conn.stream(sqlalchemy.text(BOOKS_BY_TITLE_YEAR), {"p1": title, "p2": year})
         async for row in result:
             yield models.Book(
-                book_id=row[0],
-                author_id=row[1],
-                isbn=row[2],
-                book_type=row[3],
-                title=row[4],
-                year=row[5],
-                available=row[6],
-                tags=row[7],
+                book_id=cast(int, row[0]),
+                author_id=cast(int, row[1]),
+                isbn=cast(str, row[2]),
+                book_type=cast(models.BookType, row[3]),
+                title=cast(str, row[4]),
+                year=cast(int, row[5]),
+                available=cast(datetime.datetime, row[6]),
+                tags=cast(list[str], row[7]),
             )
 
     async def create_author(self, *, name: str) -> models.Author | None:
@@ -147,8 +148,8 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Author(
-            author_id=row[0],
-            name=row[1],
+            author_id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )
 
     async def create_book(self, arg: CreateBookParams) -> models.Book | None:
@@ -164,14 +165,14 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Book(
-            book_id=row[0],
-            author_id=row[1],
-            isbn=row[2],
-            book_type=row[3],
-            title=row[4],
-            year=row[5],
-            available=row[6],
-            tags=row[7],
+            book_id=cast(int, row[0]),
+            author_id=cast(int, row[1]),
+            isbn=cast(str, row[2]),
+            book_type=cast(models.BookType, row[3]),
+            title=cast(str, row[4]),
+            year=cast(int, row[5]),
+            available=cast(datetime.datetime, row[6]),
+            tags=cast(list[str], row[7]),
         )
 
     async def delete_book(self, *, book_id: int) -> None:
@@ -182,8 +183,8 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Author(
-            author_id=row[0],
-            name=row[1],
+            author_id=cast(int, row[0]),
+            name=cast(str, row[1]),
         )
 
     async def get_book(self, *, book_id: int) -> models.Book | None:
@@ -191,14 +192,14 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
         if row is None:
             return None
         return models.Book(
-            book_id=row[0],
-            author_id=row[1],
-            isbn=row[2],
-            book_type=row[3],
-            title=row[4],
-            year=row[5],
-            available=row[6],
-            tags=row[7],
+            book_id=cast(int, row[0]),
+            author_id=cast(int, row[1]),
+            isbn=cast(str, row[2]),
+            book_type=cast(models.BookType, row[3]),
+            title=cast(str, row[4]),
+            year=cast(int, row[5]),
+            available=cast(datetime.datetime, row[6]),
+            tags=cast(list[str], row[7]),
         )
 
     async def update_book(self, *, title: str, tags: list[str], book_id: int) -> None:

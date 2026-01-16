@@ -4,6 +4,7 @@
 # source: query.sql
 from collections.abc import Iterator
 import pydantic
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.orm
@@ -53,15 +54,15 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
             return None
         return GetBookWithAuthorRow(
             books=models.Book(
-                id=row[0],
-                author_id=row[1],
-                title=row[2],
-                isbn=row[3],
+                id=cast(int, row[0]),
+                author_id=cast(int, row[1]),
+                title=cast(str, row[2]),
+                isbn=cast(str | None, row[3]),
             ),
             authors=models.Author(
-                id=row[4],
-                name=row[5],
-                bio=row[6],
+                id=cast(int, row[4]),
+                name=cast(str, row[5]),
+                bio=cast(str | None, row[6]),
             ),
         )
 
@@ -70,14 +71,14 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
         for row in result:
             yield ListBooksWithAuthorsRow(
                 books=models.Book(
-                    id=row[0],
-                    author_id=row[1],
-                    title=row[2],
-                    isbn=row[3],
+                    id=cast(int, row[0]),
+                    author_id=cast(int, row[1]),
+                    title=cast(str, row[2]),
+                    isbn=cast(str | None, row[3]),
                 ),
                 authors=models.Author(
-                    id=row[4],
-                    name=row[5],
-                    bio=row[6],
+                    id=cast(int, row[4]),
+                    name=cast(str, row[5]),
+                    bio=cast(str | None, row[6]),
                 ),
             )
