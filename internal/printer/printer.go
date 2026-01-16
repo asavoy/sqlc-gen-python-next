@@ -130,6 +130,9 @@ func (w *writer) printNode(node *ast.Node, indent int32) {
 	case *ast.Node_Yield:
 		w.printYield(n.Yield, indent)
 
+	case *ast.Node_TypeVar:
+		w.printTypeVar(n.TypeVar, indent)
+
 	default:
 		panic(n)
 
@@ -241,6 +244,16 @@ func (w *writer) printClassDef(cd *ast.ClassDef, indent int32) {
 	}
 	w.print("class ")
 	w.print(cd.Name)
+	if len(cd.TypeParams) > 0 {
+		w.print("[")
+		for i, node := range cd.TypeParams {
+			w.printNode(node, indent)
+			if i != len(cd.TypeParams)-1 {
+				w.print(", ")
+			}
+		}
+		w.print("]")
+	}
 	if len(cd.Bases) > 0 {
 		w.print("(")
 		for i, node := range cd.Bases {
@@ -505,4 +518,12 @@ func (w *writer) printSubscript(ss *ast.Subscript, indent int32) {
 func (w *writer) printYield(n *ast.Yield, indent int32) {
 	w.print("yield ")
 	w.printNode(n.Value, indent)
+}
+
+func (w *writer) printTypeVar(tv *ast.TypeVar, indent int32) {
+	w.print(tv.Name)
+	if tv.Bound != nil {
+		w.print(": ")
+		w.printNode(tv.Bound, indent)
+	}
 }
