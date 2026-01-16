@@ -901,18 +901,25 @@ func buildModelsTree(ctx *pyTmplCtx, i *importer) *pyast.Node {
 }
 
 func querierClassDef() *pyast.ClassDef {
+	// Create bound type for Connection | Session
+	boundType := poet.BinOp(
+		typeRefNode("sqlalchemy", "engine", "Connection"),
+		poet.BitOr(),
+		typeRefNode("sqlalchemy", "orm", "Session"),
+	)
+
+	// Create TypeVar "T" with bound
+	typeVar := poet.TypeVar("T", boundType)
+
 	return &pyast.ClassDef{
 		Name: "Querier",
+		TypeParams: []*pyast.Node{typeVar},
 		Body: []*pyast.Node{
 			{
 				Node: &pyast.Node_AnnAssign{
 					AnnAssign: &pyast.AnnAssign{
 						Target: &pyast.Name{Id: "_conn"},
-						Annotation: poet.BinOp(
-							typeRefNode("sqlalchemy", "engine", "Connection"),
-							poet.BitOr(),
-							typeRefNode("sqlalchemy", "orm", "Session"),
-						),
+						Annotation: poet.Name("T"),
 					},
 				},
 			},
@@ -927,11 +934,7 @@ func querierClassDef() *pyast.ClassDef {
 								},
 								{
 									Arg:        "conn",
-									Annotation: poet.BinOp(
-										typeRefNode("sqlalchemy", "engine", "Connection"),
-										poet.BitOr(),
-										typeRefNode("sqlalchemy", "orm", "Session"),
-									),
+									Annotation: poet.Name("T"),
 								},
 							},
 						},
@@ -955,18 +958,25 @@ func querierClassDef() *pyast.ClassDef {
 }
 
 func asyncQuerierClassDef() *pyast.ClassDef {
+	// Create bound type for AsyncConnection | AsyncSession
+	boundType := poet.BinOp(
+		typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncConnection"),
+		poet.BitOr(),
+		typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncSession"),
+	)
+
+	// Create TypeVar "T" with bound
+	typeVar := poet.TypeVar("T", boundType)
+
 	return &pyast.ClassDef{
 		Name: "AsyncQuerier",
+		TypeParams: []*pyast.Node{typeVar},
 		Body: []*pyast.Node{
 			{
 				Node: &pyast.Node_AnnAssign{
 					AnnAssign: &pyast.AnnAssign{
 						Target: &pyast.Name{Id: "_conn"},
-						Annotation: poet.BinOp(
-							typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncConnection"),
-							poet.BitOr(),
-							typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncSession"),
-						),
+						Annotation: poet.Name("T"),
 					},
 				},
 			},
@@ -981,11 +991,7 @@ func asyncQuerierClassDef() *pyast.ClassDef {
 								},
 								{
 									Arg:        "conn",
-									Annotation: poet.BinOp(
-										typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncConnection"),
-										poet.BitOr(),
-										typeRefNode("sqlalchemy", "ext", "asyncio", "AsyncSession"),
-									),
+									Annotation: poet.Name("T"),
 								},
 							},
 						},
