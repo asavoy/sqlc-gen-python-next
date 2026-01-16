@@ -104,9 +104,13 @@ func (v QueryValue) isEmpty() bool {
 
 func (v QueryValue) RowNode(rowVar string) *pyast.Node {
 	if !v.IsStruct() {
-		return subscriptNode(
-			rowVar,
-			constantInt(0),
+		// For scalar returns, wrap with cast
+		return castNode(
+			v.Typ.Annotation(),
+			subscriptNode(
+				rowVar,
+				constantInt(0),
+			),
 		)
 	}
 	call := &pyast.Call{
@@ -122,9 +126,12 @@ func (v QueryValue) RowNode(rowVar string) *pyast.Node {
 			for i, embedField := range f.EmbedStruct.Fields {
 				embedCall.Keywords = append(embedCall.Keywords, &pyast.Keyword{
 					Arg: embedField.Name,
-					Value: subscriptNode(
-						rowVar,
-						constantInt(f.ColumnOffset+i),
+					Value: castNode(
+						embedField.Type.Annotation(),
+						subscriptNode(
+							rowVar,
+							constantInt(f.ColumnOffset+i),
+						),
 					),
 				})
 			}
@@ -134,10 +141,13 @@ func (v QueryValue) RowNode(rowVar string) *pyast.Node {
 				},
 			}
 		} else {
-			// Regular scalar field
-			value = subscriptNode(
-				rowVar,
-				constantInt(f.ColumnOffset),
+			// Regular scalar field - wrap with cast
+			value = castNode(
+				f.Type.Annotation(),
+				subscriptNode(
+					rowVar,
+					constantInt(f.ColumnOffset),
+				),
 			)
 		}
 		call.Keywords = append(call.Keywords, &pyast.Keyword{
@@ -799,6 +809,20 @@ func connMethodNode(method, name string, arg *pyast.Node) *pyast.Node {
 			Call: &pyast.Call{
 				Func: typeRefNode("self", "_conn", method),
 				Args: args,
+			},
+		},
+	}
+}
+
+func castNode(typ *pyast.Node, value *pyast.Node) *pyast.Node {
+	return &pyast.Node{
+		Node: &pyast.Node_Call{
+			Call: &pyast.Call{
+				Func: poet.Name("cast"),
+				Args: []*pyast.Node{
+					typ,
+					value,
+				},
 			},
 		},
 	}

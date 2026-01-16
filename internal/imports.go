@@ -163,6 +163,9 @@ func (i *importer) queryImportSpecs(fileName string) (map[string]importSpec, map
 		}
 	}
 
+	// Always import cast from typing for query files
+	std["typing.cast"] = importSpec{Module: "typing", Name: "cast"}
+
 	for _, q := range i.Queries {
 		if q.SourceName != fileName {
 			continue
