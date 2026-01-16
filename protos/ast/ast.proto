@@ -38,6 +38,7 @@ message Node {
     ImportGroup import_group = 30 [json_name="ImportGroup"];
     BinOp bin_op = 31 [json_name="BinOp"];
     BitOr bit_or = 32 [json_name="BitOr"];
+    TypeVar type_var = 33 [json_name="TypeVar"];
   }
 }
 
@@ -124,6 +125,7 @@ message ClassDef
   repeated Node keywords = 3 [json_name="keywords"];
   repeated Node body = 4 [json_name="body"];
   repeated Node decorator_list = 5 [json_name="decorator_list"];
+  repeated Node type_params = 6 [json_name="type_params"];
 }
 
 // The Python ast module does not parse comments. It's not clear if this is the
@@ -252,4 +254,9 @@ message Yield
   Node value = 1 [json_name="value"];
 }
 
+message TypeVar
+{
+  string name = 1 [json_name="name"];
+  Node bound = 2 [json_name="bound"];
+}
 

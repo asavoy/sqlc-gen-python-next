@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.32.1
-// source: ast/ast.proto
+// source: protos/ast/ast.proto
 
 package ast
 
@@ -57,6 +57,7 @@ type Node struct {
 	//	*Node_ImportGroup
 	//	*Node_BinOp
 	//	*Node_BitOr
+	//	*Node_TypeVar
 	Node          isNode_Node `protobuf_oneof:"node"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -64,7 +65,7 @@ type Node struct {
 
 func (x *Node) Reset() {
 	*x = Node{}
-	mi := &file_ast_ast_proto_msgTypes[0]
+	mi := &file_protos_ast_ast_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -76,7 +77,7 @@ func (x *Node) String() string {
 func (*Node) ProtoMessage() {}
 
 func (x *Node) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[0]
+	mi := &file_protos_ast_ast_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -89,7 +90,7 @@ func (x *Node) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Node.ProtoReflect.Descriptor instead.
 func (*Node) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{0}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Node) GetNode() isNode_Node {
@@ -387,6 +388,15 @@ func (x *Node) GetBitOr() *BitOr {
 	return nil
 }
 
+func (x *Node) GetTypeVar() *TypeVar {
+	if x != nil {
+		if x, ok := x.Node.(*Node_TypeVar); ok {
+			return x.TypeVar
+		}
+	}
+	return nil
+}
+
 type isNode_Node interface {
 	isNode_Node()
 }
@@ -519,6 +529,10 @@ type Node_BitOr struct {
 	BitOr *BitOr `protobuf:"bytes,32,opt,name=bit_or,json=BitOr,proto3,oneof"`
 }
 
+type Node_TypeVar struct {
+	TypeVar *TypeVar `protobuf:"bytes,33,opt,name=type_var,json=TypeVar,proto3,oneof"`
+}
+
 func (*Node_ClassDef) isNode_Node() {}
 
 func (*Node_Import) isNode_Node() {}
@@ -583,6 +597,8 @@ func (*Node_BinOp) isNode_Node() {}
 
 func (*Node_BitOr) isNode_Node() {}
 
+func (*Node_TypeVar) isNode_Node() {}
+
 type Alias struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -592,7 +608,7 @@ type Alias struct {
 
 func (x *Alias) Reset() {
 	*x = Alias{}
-	mi := &file_ast_ast_proto_msgTypes[1]
+	mi := &file_protos_ast_ast_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -604,7 +620,7 @@ func (x *Alias) String() string {
 func (*Alias) ProtoMessage() {}
 
 func (x *Alias) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[1]
+	mi := &file_protos_ast_ast_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -617,7 +633,7 @@ func (x *Alias) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Alias.ProtoReflect.Descriptor instead.
 func (*Alias) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{1}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Alias) GetName() string {
@@ -636,7 +652,7 @@ type Await struct {
 
 func (x *Await) Reset() {
 	*x = Await{}
-	mi := &file_ast_ast_proto_msgTypes[2]
+	mi := &file_protos_ast_ast_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -648,7 +664,7 @@ func (x *Await) String() string {
 func (*Await) ProtoMessage() {}
 
 func (x *Await) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[2]
+	mi := &file_protos_ast_ast_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +677,7 @@ func (x *Await) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Await.ProtoReflect.Descriptor instead.
 func (*Await) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{2}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Await) GetValue() *Node {
@@ -682,7 +698,7 @@ type BinOp struct {
 
 func (x *BinOp) Reset() {
 	*x = BinOp{}
-	mi := &file_ast_ast_proto_msgTypes[3]
+	mi := &file_protos_ast_ast_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -694,7 +710,7 @@ func (x *BinOp) String() string {
 func (*BinOp) ProtoMessage() {}
 
 func (x *BinOp) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[3]
+	mi := &file_protos_ast_ast_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -707,7 +723,7 @@ func (x *BinOp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BinOp.ProtoReflect.Descriptor instead.
 func (*BinOp) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{3}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *BinOp) GetLeft() *Node {
@@ -739,7 +755,7 @@ type BitOr struct {
 
 func (x *BitOr) Reset() {
 	*x = BitOr{}
-	mi := &file_ast_ast_proto_msgTypes[4]
+	mi := &file_protos_ast_ast_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -751,7 +767,7 @@ func (x *BitOr) String() string {
 func (*BitOr) ProtoMessage() {}
 
 func (x *BitOr) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[4]
+	mi := &file_protos_ast_ast_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -764,7 +780,7 @@ func (x *BitOr) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BitOr.ProtoReflect.Descriptor instead.
 func (*BitOr) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{4}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{4}
 }
 
 type Attribute struct {
@@ -777,7 +793,7 @@ type Attribute struct {
 
 func (x *Attribute) Reset() {
 	*x = Attribute{}
-	mi := &file_ast_ast_proto_msgTypes[5]
+	mi := &file_protos_ast_ast_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -789,7 +805,7 @@ func (x *Attribute) String() string {
 func (*Attribute) ProtoMessage() {}
 
 func (x *Attribute) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[5]
+	mi := &file_protos_ast_ast_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -802,7 +818,7 @@ func (x *Attribute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Attribute.ProtoReflect.Descriptor instead.
 func (*Attribute) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{5}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Attribute) GetValue() *Node {
@@ -831,7 +847,7 @@ type AnnAssign struct {
 
 func (x *AnnAssign) Reset() {
 	*x = AnnAssign{}
-	mi := &file_ast_ast_proto_msgTypes[6]
+	mi := &file_protos_ast_ast_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -843,7 +859,7 @@ func (x *AnnAssign) String() string {
 func (*AnnAssign) ProtoMessage() {}
 
 func (x *AnnAssign) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[6]
+	mi := &file_protos_ast_ast_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -856,7 +872,7 @@ func (x *AnnAssign) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnnAssign.ProtoReflect.Descriptor instead.
 func (*AnnAssign) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{6}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AnnAssign) GetTarget() *Name {
@@ -897,7 +913,7 @@ type Arg struct {
 
 func (x *Arg) Reset() {
 	*x = Arg{}
-	mi := &file_ast_ast_proto_msgTypes[7]
+	mi := &file_protos_ast_ast_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -909,7 +925,7 @@ func (x *Arg) String() string {
 func (*Arg) ProtoMessage() {}
 
 func (x *Arg) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[7]
+	mi := &file_protos_ast_ast_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -922,7 +938,7 @@ func (x *Arg) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Arg.ProtoReflect.Descriptor instead.
 func (*Arg) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{7}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Arg) GetArg() string {
@@ -949,7 +965,7 @@ type Arguments struct {
 
 func (x *Arguments) Reset() {
 	*x = Arguments{}
-	mi := &file_ast_ast_proto_msgTypes[8]
+	mi := &file_protos_ast_ast_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -961,7 +977,7 @@ func (x *Arguments) String() string {
 func (*Arguments) ProtoMessage() {}
 
 func (x *Arguments) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[8]
+	mi := &file_protos_ast_ast_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -974,7 +990,7 @@ func (x *Arguments) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Arguments.ProtoReflect.Descriptor instead.
 func (*Arguments) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{8}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Arguments) GetArgs() []*Arg {
@@ -1002,7 +1018,7 @@ type AsyncFor struct {
 
 func (x *AsyncFor) Reset() {
 	*x = AsyncFor{}
-	mi := &file_ast_ast_proto_msgTypes[9]
+	mi := &file_protos_ast_ast_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1014,7 +1030,7 @@ func (x *AsyncFor) String() string {
 func (*AsyncFor) ProtoMessage() {}
 
 func (x *AsyncFor) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[9]
+	mi := &file_protos_ast_ast_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1027,7 +1043,7 @@ func (x *AsyncFor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AsyncFor.ProtoReflect.Descriptor instead.
 func (*AsyncFor) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{9}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AsyncFor) GetTarget() *Node {
@@ -1063,7 +1079,7 @@ type AsyncFunctionDef struct {
 
 func (x *AsyncFunctionDef) Reset() {
 	*x = AsyncFunctionDef{}
-	mi := &file_ast_ast_proto_msgTypes[10]
+	mi := &file_protos_ast_ast_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1075,7 +1091,7 @@ func (x *AsyncFunctionDef) String() string {
 func (*AsyncFunctionDef) ProtoMessage() {}
 
 func (x *AsyncFunctionDef) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[10]
+	mi := &file_protos_ast_ast_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1088,7 +1104,7 @@ func (x *AsyncFunctionDef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AsyncFunctionDef.ProtoReflect.Descriptor instead.
 func (*AsyncFunctionDef) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{10}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *AsyncFunctionDef) GetName() string {
@@ -1130,7 +1146,7 @@ type Assign struct {
 
 func (x *Assign) Reset() {
 	*x = Assign{}
-	mi := &file_ast_ast_proto_msgTypes[11]
+	mi := &file_protos_ast_ast_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1142,7 +1158,7 @@ func (x *Assign) String() string {
 func (*Assign) ProtoMessage() {}
 
 func (x *Assign) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[11]
+	mi := &file_protos_ast_ast_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1155,7 +1171,7 @@ func (x *Assign) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Assign.ProtoReflect.Descriptor instead.
 func (*Assign) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{11}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Assign) GetTargets() []*Node {
@@ -1190,7 +1206,7 @@ type Call struct {
 
 func (x *Call) Reset() {
 	*x = Call{}
-	mi := &file_ast_ast_proto_msgTypes[12]
+	mi := &file_protos_ast_ast_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1202,7 +1218,7 @@ func (x *Call) String() string {
 func (*Call) ProtoMessage() {}
 
 func (x *Call) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[12]
+	mi := &file_protos_ast_ast_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1215,7 +1231,7 @@ func (x *Call) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Call.ProtoReflect.Descriptor instead.
 func (*Call) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{12}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Call) GetFunc() *Node {
@@ -1246,13 +1262,14 @@ type ClassDef struct {
 	Keywords      []*Node                `protobuf:"bytes,3,rep,name=keywords,proto3" json:"keywords,omitempty"`
 	Body          []*Node                `protobuf:"bytes,4,rep,name=body,proto3" json:"body,omitempty"`
 	DecoratorList []*Node                `protobuf:"bytes,5,rep,name=decorator_list,proto3" json:"decorator_list,omitempty"`
+	TypeParams    []*Node                `protobuf:"bytes,6,rep,name=type_params,proto3" json:"type_params,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClassDef) Reset() {
 	*x = ClassDef{}
-	mi := &file_ast_ast_proto_msgTypes[13]
+	mi := &file_protos_ast_ast_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1264,7 +1281,7 @@ func (x *ClassDef) String() string {
 func (*ClassDef) ProtoMessage() {}
 
 func (x *ClassDef) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[13]
+	mi := &file_protos_ast_ast_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1277,7 +1294,7 @@ func (x *ClassDef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClassDef.ProtoReflect.Descriptor instead.
 func (*ClassDef) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{13}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ClassDef) GetName() string {
@@ -1315,6 +1332,13 @@ func (x *ClassDef) GetDecoratorList() []*Node {
 	return nil
 }
 
+func (x *ClassDef) GetTypeParams() []*Node {
+	if x != nil {
+		return x.TypeParams
+	}
+	return nil
+}
+
 // The Python ast module does not parse comments. It's not clear if this is the
 // best way to support them in the AST
 type Comment struct {
@@ -1326,7 +1350,7 @@ type Comment struct {
 
 func (x *Comment) Reset() {
 	*x = Comment{}
-	mi := &file_ast_ast_proto_msgTypes[14]
+	mi := &file_protos_ast_ast_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1338,7 +1362,7 @@ func (x *Comment) String() string {
 func (*Comment) ProtoMessage() {}
 
 func (x *Comment) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[14]
+	mi := &file_protos_ast_ast_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1351,7 +1375,7 @@ func (x *Comment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Comment.ProtoReflect.Descriptor instead.
 func (*Comment) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{14}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Comment) GetText() string {
@@ -1372,7 +1396,7 @@ type Compare struct {
 
 func (x *Compare) Reset() {
 	*x = Compare{}
-	mi := &file_ast_ast_proto_msgTypes[15]
+	mi := &file_protos_ast_ast_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1384,7 +1408,7 @@ func (x *Compare) String() string {
 func (*Compare) ProtoMessage() {}
 
 func (x *Compare) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[15]
+	mi := &file_protos_ast_ast_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1397,7 +1421,7 @@ func (x *Compare) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Compare.ProtoReflect.Descriptor instead.
 func (*Compare) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{15}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Compare) GetLeft() *Node {
@@ -1435,7 +1459,7 @@ type Constant struct {
 
 func (x *Constant) Reset() {
 	*x = Constant{}
-	mi := &file_ast_ast_proto_msgTypes[16]
+	mi := &file_protos_ast_ast_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1447,7 +1471,7 @@ func (x *Constant) String() string {
 func (*Constant) ProtoMessage() {}
 
 func (x *Constant) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[16]
+	mi := &file_protos_ast_ast_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1460,7 +1484,7 @@ func (x *Constant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Constant.ProtoReflect.Descriptor instead.
 func (*Constant) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{16}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *Constant) GetValue() isConstant_Value {
@@ -1529,7 +1553,7 @@ type Dict struct {
 
 func (x *Dict) Reset() {
 	*x = Dict{}
-	mi := &file_ast_ast_proto_msgTypes[17]
+	mi := &file_protos_ast_ast_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1541,7 +1565,7 @@ func (x *Dict) String() string {
 func (*Dict) ProtoMessage() {}
 
 func (x *Dict) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[17]
+	mi := &file_protos_ast_ast_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1554,7 +1578,7 @@ func (x *Dict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Dict.ProtoReflect.Descriptor instead.
 func (*Dict) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{17}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *Dict) GetKeys() []*Node {
@@ -1580,7 +1604,7 @@ type Expr struct {
 
 func (x *Expr) Reset() {
 	*x = Expr{}
-	mi := &file_ast_ast_proto_msgTypes[18]
+	mi := &file_protos_ast_ast_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1592,7 +1616,7 @@ func (x *Expr) String() string {
 func (*Expr) ProtoMessage() {}
 
 func (x *Expr) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[18]
+	mi := &file_protos_ast_ast_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1605,7 +1629,7 @@ func (x *Expr) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Expr.ProtoReflect.Descriptor instead.
 func (*Expr) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{18}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *Expr) GetValue() *Node {
@@ -1626,7 +1650,7 @@ type For struct {
 
 func (x *For) Reset() {
 	*x = For{}
-	mi := &file_ast_ast_proto_msgTypes[19]
+	mi := &file_protos_ast_ast_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1638,7 +1662,7 @@ func (x *For) String() string {
 func (*For) ProtoMessage() {}
 
 func (x *For) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[19]
+	mi := &file_protos_ast_ast_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1651,7 +1675,7 @@ func (x *For) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use For.ProtoReflect.Descriptor instead.
 func (*For) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{19}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *For) GetTarget() *Node {
@@ -1687,7 +1711,7 @@ type FunctionDef struct {
 
 func (x *FunctionDef) Reset() {
 	*x = FunctionDef{}
-	mi := &file_ast_ast_proto_msgTypes[20]
+	mi := &file_protos_ast_ast_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1699,7 +1723,7 @@ func (x *FunctionDef) String() string {
 func (*FunctionDef) ProtoMessage() {}
 
 func (x *FunctionDef) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[20]
+	mi := &file_protos_ast_ast_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1712,7 +1736,7 @@ func (x *FunctionDef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionDef.ProtoReflect.Descriptor instead.
 func (*FunctionDef) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{20}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *FunctionDef) GetName() string {
@@ -1754,7 +1778,7 @@ type If struct {
 
 func (x *If) Reset() {
 	*x = If{}
-	mi := &file_ast_ast_proto_msgTypes[21]
+	mi := &file_protos_ast_ast_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1766,7 +1790,7 @@ func (x *If) String() string {
 func (*If) ProtoMessage() {}
 
 func (x *If) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[21]
+	mi := &file_protos_ast_ast_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1779,7 +1803,7 @@ func (x *If) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use If.ProtoReflect.Descriptor instead.
 func (*If) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{21}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *If) GetTest() *Node {
@@ -1812,7 +1836,7 @@ type Import struct {
 
 func (x *Import) Reset() {
 	*x = Import{}
-	mi := &file_ast_ast_proto_msgTypes[22]
+	mi := &file_protos_ast_ast_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1824,7 +1848,7 @@ func (x *Import) String() string {
 func (*Import) ProtoMessage() {}
 
 func (x *Import) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[22]
+	mi := &file_protos_ast_ast_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1837,7 +1861,7 @@ func (x *Import) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Import.ProtoReflect.Descriptor instead.
 func (*Import) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{22}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *Import) GetNames() []*Node {
@@ -1858,7 +1882,7 @@ type ImportFrom struct {
 
 func (x *ImportFrom) Reset() {
 	*x = ImportFrom{}
-	mi := &file_ast_ast_proto_msgTypes[23]
+	mi := &file_protos_ast_ast_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1870,7 +1894,7 @@ func (x *ImportFrom) String() string {
 func (*ImportFrom) ProtoMessage() {}
 
 func (x *ImportFrom) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[23]
+	mi := &file_protos_ast_ast_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1883,7 +1907,7 @@ func (x *ImportFrom) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportFrom.ProtoReflect.Descriptor instead.
 func (*ImportFrom) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{23}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ImportFrom) GetModule() string {
@@ -1928,7 +1952,7 @@ type ImportGroup struct {
 
 func (x *ImportGroup) Reset() {
 	*x = ImportGroup{}
-	mi := &file_ast_ast_proto_msgTypes[24]
+	mi := &file_protos_ast_ast_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1940,7 +1964,7 @@ func (x *ImportGroup) String() string {
 func (*ImportGroup) ProtoMessage() {}
 
 func (x *ImportGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[24]
+	mi := &file_protos_ast_ast_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1953,7 +1977,7 @@ func (x *ImportGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImportGroup.ProtoReflect.Descriptor instead.
 func (*ImportGroup) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{24}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ImportGroup) GetImports() []*Node {
@@ -1971,7 +1995,7 @@ type Is struct {
 
 func (x *Is) Reset() {
 	*x = Is{}
-	mi := &file_ast_ast_proto_msgTypes[25]
+	mi := &file_protos_ast_ast_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1983,7 +2007,7 @@ func (x *Is) String() string {
 func (*Is) ProtoMessage() {}
 
 func (x *Is) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[25]
+	mi := &file_protos_ast_ast_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1996,7 +2020,7 @@ func (x *Is) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Is.ProtoReflect.Descriptor instead.
 func (*Is) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{25}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{25}
 }
 
 type Keyword struct {
@@ -2009,7 +2033,7 @@ type Keyword struct {
 
 func (x *Keyword) Reset() {
 	*x = Keyword{}
-	mi := &file_ast_ast_proto_msgTypes[26]
+	mi := &file_protos_ast_ast_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2021,7 +2045,7 @@ func (x *Keyword) String() string {
 func (*Keyword) ProtoMessage() {}
 
 func (x *Keyword) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[26]
+	mi := &file_protos_ast_ast_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2034,7 +2058,7 @@ func (x *Keyword) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Keyword.ProtoReflect.Descriptor instead.
 func (*Keyword) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{26}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *Keyword) GetArg() string {
@@ -2060,7 +2084,7 @@ type Module struct {
 
 func (x *Module) Reset() {
 	*x = Module{}
-	mi := &file_ast_ast_proto_msgTypes[27]
+	mi := &file_protos_ast_ast_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2072,7 +2096,7 @@ func (x *Module) String() string {
 func (*Module) ProtoMessage() {}
 
 func (x *Module) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[27]
+	mi := &file_protos_ast_ast_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2085,7 +2109,7 @@ func (x *Module) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Module.ProtoReflect.Descriptor instead.
 func (*Module) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{27}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *Module) GetBody() []*Node {
@@ -2104,7 +2128,7 @@ type Name struct {
 
 func (x *Name) Reset() {
 	*x = Name{}
-	mi := &file_ast_ast_proto_msgTypes[28]
+	mi := &file_protos_ast_ast_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2116,7 +2140,7 @@ func (x *Name) String() string {
 func (*Name) ProtoMessage() {}
 
 func (x *Name) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[28]
+	mi := &file_protos_ast_ast_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2129,7 +2153,7 @@ func (x *Name) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Name.ProtoReflect.Descriptor instead.
 func (*Name) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{28}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *Name) GetId() string {
@@ -2147,7 +2171,7 @@ type Pass struct {
 
 func (x *Pass) Reset() {
 	*x = Pass{}
-	mi := &file_ast_ast_proto_msgTypes[29]
+	mi := &file_protos_ast_ast_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2159,7 +2183,7 @@ func (x *Pass) String() string {
 func (*Pass) ProtoMessage() {}
 
 func (x *Pass) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[29]
+	mi := &file_protos_ast_ast_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2172,7 +2196,7 @@ func (x *Pass) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Pass.ProtoReflect.Descriptor instead.
 func (*Pass) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{29}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{29}
 }
 
 type Return struct {
@@ -2184,7 +2208,7 @@ type Return struct {
 
 func (x *Return) Reset() {
 	*x = Return{}
-	mi := &file_ast_ast_proto_msgTypes[30]
+	mi := &file_protos_ast_ast_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2196,7 +2220,7 @@ func (x *Return) String() string {
 func (*Return) ProtoMessage() {}
 
 func (x *Return) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[30]
+	mi := &file_protos_ast_ast_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2209,7 +2233,7 @@ func (x *Return) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Return.ProtoReflect.Descriptor instead.
 func (*Return) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{30}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *Return) GetValue() *Node {
@@ -2229,7 +2253,7 @@ type Subscript struct {
 
 func (x *Subscript) Reset() {
 	*x = Subscript{}
-	mi := &file_ast_ast_proto_msgTypes[31]
+	mi := &file_protos_ast_ast_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2241,7 +2265,7 @@ func (x *Subscript) String() string {
 func (*Subscript) ProtoMessage() {}
 
 func (x *Subscript) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[31]
+	mi := &file_protos_ast_ast_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2254,7 +2278,7 @@ func (x *Subscript) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Subscript.ProtoReflect.Descriptor instead.
 func (*Subscript) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{31}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *Subscript) GetValue() *Name {
@@ -2280,7 +2304,7 @@ type Yield struct {
 
 func (x *Yield) Reset() {
 	*x = Yield{}
-	mi := &file_ast_ast_proto_msgTypes[32]
+	mi := &file_protos_ast_ast_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2292,7 +2316,7 @@ func (x *Yield) String() string {
 func (*Yield) ProtoMessage() {}
 
 func (x *Yield) ProtoReflect() protoreflect.Message {
-	mi := &file_ast_ast_proto_msgTypes[32]
+	mi := &file_protos_ast_ast_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2305,7 +2329,7 @@ func (x *Yield) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Yield.ProtoReflect.Descriptor instead.
 func (*Yield) Descriptor() ([]byte, []int) {
-	return file_ast_ast_proto_rawDescGZIP(), []int{32}
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *Yield) GetValue() *Node {
@@ -2315,11 +2339,63 @@ func (x *Yield) GetValue() *Node {
 	return nil
 }
 
-var File_ast_ast_proto protoreflect.FileDescriptor
+type TypeVar struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Bound         *Node                  `protobuf:"bytes,2,opt,name=bound,proto3" json:"bound,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
 
-const file_ast_ast_proto_rawDesc = "" +
+func (x *TypeVar) Reset() {
+	*x = TypeVar{}
+	mi := &file_protos_ast_ast_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TypeVar) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TypeVar) ProtoMessage() {}
+
+func (x *TypeVar) ProtoReflect() protoreflect.Message {
+	mi := &file_protos_ast_ast_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TypeVar.ProtoReflect.Descriptor instead.
+func (*TypeVar) Descriptor() ([]byte, []int) {
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *TypeVar) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TypeVar) GetBound() *Node {
+	if x != nil {
+		return x.Bound
+	}
+	return nil
+}
+
+var File_protos_ast_ast_proto protoreflect.FileDescriptor
+
+const file_protos_ast_ast_proto_rawDesc = "" +
 	"\n" +
-	"\rast/ast.proto\x12\x03ast\"\xa8\n" +
+	"\x14protos/ast/ast.proto\x12\x03ast\"\xd3\n" +
 	"\n" +
 	"\x04Node\x12,\n" +
 	"\tclass_def\x18\x01 \x01(\v2\r.ast.ClassDefH\x00R\bClassDef\x12%\n" +
@@ -2361,7 +2437,8 @@ const file_ast_ast_proto_rawDesc = "" +
 	"\x06bin_op\x18\x1f \x01(\v2\n" +
 	".ast.BinOpH\x00R\x05BinOp\x12#\n" +
 	"\x06bit_or\x18  \x01(\v2\n" +
-	".ast.BitOrH\x00R\x05BitOrB\x06\n" +
+	".ast.BitOrH\x00R\x05BitOr\x12)\n" +
+	"\btype_var\x18! \x01(\v2\f.ast.TypeVarH\x00R\aTypeVarB\x06\n" +
 	"\x04node\"\x1b\n" +
 	"\x05Alias\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"(\n" +
@@ -2407,13 +2484,14 @@ const file_ast_ast_proto_rawDesc = "" +
 	"\x04Call\x12\x1d\n" +
 	"\x04func\x18\x01 \x01(\v2\t.ast.NodeR\x04func\x12\x1d\n" +
 	"\x04args\x18\x02 \x03(\v2\t.ast.NodeR\x04args\x12(\n" +
-	"\bkeywords\x18\x03 \x03(\v2\f.ast.KeywordR\bkeywords\"\xb8\x01\n" +
+	"\bkeywords\x18\x03 \x03(\v2\f.ast.KeywordR\bkeywords\"\xe5\x01\n" +
 	"\bClassDef\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
 	"\x05bases\x18\x02 \x03(\v2\t.ast.NodeR\x05bases\x12%\n" +
 	"\bkeywords\x18\x03 \x03(\v2\t.ast.NodeR\bkeywords\x12\x1d\n" +
 	"\x04body\x18\x04 \x03(\v2\t.ast.NodeR\x04body\x121\n" +
-	"\x0edecorator_list\x18\x05 \x03(\v2\t.ast.NodeR\x0edecorator_list\"\x1d\n" +
+	"\x0edecorator_list\x18\x05 \x03(\v2\t.ast.NodeR\x0edecorator_list\x12+\n" +
+	"\vtype_params\x18\x06 \x03(\v2\t.ast.NodeR\vtype_params\"\x1d\n" +
 	"\aComment\x12\x12\n" +
 	"\x04text\x18\x01 \x01(\tR\x04text\"r\n" +
 	"\aCompare\x12\x1d\n" +
@@ -2467,22 +2545,25 @@ const file_ast_ast_proto_rawDesc = "" +
 	"\x05value\x18\x01 \x01(\v2\t.ast.NameR\x05value\x12\x1f\n" +
 	"\x05slice\x18\x02 \x01(\v2\t.ast.NodeR\x05slice\"(\n" +
 	"\x05Yield\x12\x1f\n" +
-	"\x05value\x18\x01 \x01(\v2\t.ast.NodeR\x05valueB2Z0github.com/sqlc-dev/sqlc-gen-python/internal/astb\x06proto3"
+	"\x05value\x18\x01 \x01(\v2\t.ast.NodeR\x05value\">\n" +
+	"\aTypeVar\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
+	"\x05bound\x18\x02 \x01(\v2\t.ast.NodeR\x05boundB2Z0github.com/sqlc-dev/sqlc-gen-python/internal/astb\x06proto3"
 
 var (
-	file_ast_ast_proto_rawDescOnce sync.Once
-	file_ast_ast_proto_rawDescData []byte
+	file_protos_ast_ast_proto_rawDescOnce sync.Once
+	file_protos_ast_ast_proto_rawDescData []byte
 )
 
-func file_ast_ast_proto_rawDescGZIP() []byte {
-	file_ast_ast_proto_rawDescOnce.Do(func() {
-		file_ast_ast_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_ast_ast_proto_rawDesc), len(file_ast_ast_proto_rawDesc)))
+func file_protos_ast_ast_proto_rawDescGZIP() []byte {
+	file_protos_ast_ast_proto_rawDescOnce.Do(func() {
+		file_protos_ast_ast_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_protos_ast_ast_proto_rawDesc), len(file_protos_ast_ast_proto_rawDesc)))
 	})
-	return file_ast_ast_proto_rawDescData
+	return file_protos_ast_ast_proto_rawDescData
 }
 
-var file_ast_ast_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
-var file_ast_ast_proto_goTypes = []any{
+var file_protos_ast_ast_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_protos_ast_ast_proto_goTypes = []any{
 	(*Node)(nil),             // 0: ast.Node
 	(*Alias)(nil),            // 1: ast.Alias
 	(*Await)(nil),            // 2: ast.Await
@@ -2516,8 +2597,9 @@ var file_ast_ast_proto_goTypes = []any{
 	(*Return)(nil),           // 30: ast.Return
 	(*Subscript)(nil),        // 31: ast.Subscript
 	(*Yield)(nil),            // 32: ast.Yield
+	(*TypeVar)(nil),          // 33: ast.TypeVar
 }
-var file_ast_ast_proto_depIdxs = []int32{
+var file_protos_ast_ast_proto_depIdxs = []int32{
 	13, // 0: ast.Node.class_def:type_name -> ast.ClassDef
 	22, // 1: ast.Node.import:type_name -> ast.Import
 	23, // 2: ast.Node.import_from:type_name -> ast.ImportFrom
@@ -2550,68 +2632,71 @@ var file_ast_ast_proto_depIdxs = []int32{
 	24, // 29: ast.Node.import_group:type_name -> ast.ImportGroup
 	3,  // 30: ast.Node.bin_op:type_name -> ast.BinOp
 	4,  // 31: ast.Node.bit_or:type_name -> ast.BitOr
-	0,  // 32: ast.Await.value:type_name -> ast.Node
-	0,  // 33: ast.BinOp.left:type_name -> ast.Node
-	0,  // 34: ast.BinOp.op:type_name -> ast.Node
-	0,  // 35: ast.BinOp.right:type_name -> ast.Node
-	0,  // 36: ast.Attribute.value:type_name -> ast.Node
-	28, // 37: ast.AnnAssign.target:type_name -> ast.Name
-	0,  // 38: ast.AnnAssign.annotation:type_name -> ast.Node
-	0,  // 39: ast.Arg.annotation:type_name -> ast.Node
-	7,  // 40: ast.Arguments.args:type_name -> ast.Arg
-	7,  // 41: ast.Arguments.kw_only_args:type_name -> ast.Arg
-	0,  // 42: ast.AsyncFor.target:type_name -> ast.Node
-	0,  // 43: ast.AsyncFor.iter:type_name -> ast.Node
-	0,  // 44: ast.AsyncFor.body:type_name -> ast.Node
-	8,  // 45: ast.AsyncFunctionDef.Args:type_name -> ast.Arguments
-	0,  // 46: ast.AsyncFunctionDef.body:type_name -> ast.Node
-	0,  // 47: ast.AsyncFunctionDef.returns:type_name -> ast.Node
-	0,  // 48: ast.Assign.targets:type_name -> ast.Node
-	0,  // 49: ast.Assign.value:type_name -> ast.Node
-	0,  // 50: ast.Call.func:type_name -> ast.Node
-	0,  // 51: ast.Call.args:type_name -> ast.Node
-	26, // 52: ast.Call.keywords:type_name -> ast.Keyword
-	0,  // 53: ast.ClassDef.bases:type_name -> ast.Node
-	0,  // 54: ast.ClassDef.keywords:type_name -> ast.Node
-	0,  // 55: ast.ClassDef.body:type_name -> ast.Node
-	0,  // 56: ast.ClassDef.decorator_list:type_name -> ast.Node
-	0,  // 57: ast.Compare.left:type_name -> ast.Node
-	0,  // 58: ast.Compare.ops:type_name -> ast.Node
-	0,  // 59: ast.Compare.comparators:type_name -> ast.Node
-	0,  // 60: ast.Dict.keys:type_name -> ast.Node
-	0,  // 61: ast.Dict.values:type_name -> ast.Node
-	0,  // 62: ast.Expr.value:type_name -> ast.Node
-	0,  // 63: ast.For.target:type_name -> ast.Node
-	0,  // 64: ast.For.iter:type_name -> ast.Node
-	0,  // 65: ast.For.body:type_name -> ast.Node
-	8,  // 66: ast.FunctionDef.Args:type_name -> ast.Arguments
-	0,  // 67: ast.FunctionDef.body:type_name -> ast.Node
-	0,  // 68: ast.FunctionDef.returns:type_name -> ast.Node
-	0,  // 69: ast.If.test:type_name -> ast.Node
-	0,  // 70: ast.If.body:type_name -> ast.Node
-	0,  // 71: ast.If.or_else:type_name -> ast.Node
-	0,  // 72: ast.Import.names:type_name -> ast.Node
-	0,  // 73: ast.ImportFrom.names:type_name -> ast.Node
-	0,  // 74: ast.ImportGroup.imports:type_name -> ast.Node
-	0,  // 75: ast.Keyword.value:type_name -> ast.Node
-	0,  // 76: ast.Module.body:type_name -> ast.Node
-	0,  // 77: ast.Return.value:type_name -> ast.Node
-	28, // 78: ast.Subscript.value:type_name -> ast.Name
-	0,  // 79: ast.Subscript.slice:type_name -> ast.Node
-	0,  // 80: ast.Yield.value:type_name -> ast.Node
-	81, // [81:81] is the sub-list for method output_type
-	81, // [81:81] is the sub-list for method input_type
-	81, // [81:81] is the sub-list for extension type_name
-	81, // [81:81] is the sub-list for extension extendee
-	0,  // [0:81] is the sub-list for field type_name
+	33, // 32: ast.Node.type_var:type_name -> ast.TypeVar
+	0,  // 33: ast.Await.value:type_name -> ast.Node
+	0,  // 34: ast.BinOp.left:type_name -> ast.Node
+	0,  // 35: ast.BinOp.op:type_name -> ast.Node
+	0,  // 36: ast.BinOp.right:type_name -> ast.Node
+	0,  // 37: ast.Attribute.value:type_name -> ast.Node
+	28, // 38: ast.AnnAssign.target:type_name -> ast.Name
+	0,  // 39: ast.AnnAssign.annotation:type_name -> ast.Node
+	0,  // 40: ast.Arg.annotation:type_name -> ast.Node
+	7,  // 41: ast.Arguments.args:type_name -> ast.Arg
+	7,  // 42: ast.Arguments.kw_only_args:type_name -> ast.Arg
+	0,  // 43: ast.AsyncFor.target:type_name -> ast.Node
+	0,  // 44: ast.AsyncFor.iter:type_name -> ast.Node
+	0,  // 45: ast.AsyncFor.body:type_name -> ast.Node
+	8,  // 46: ast.AsyncFunctionDef.Args:type_name -> ast.Arguments
+	0,  // 47: ast.AsyncFunctionDef.body:type_name -> ast.Node
+	0,  // 48: ast.AsyncFunctionDef.returns:type_name -> ast.Node
+	0,  // 49: ast.Assign.targets:type_name -> ast.Node
+	0,  // 50: ast.Assign.value:type_name -> ast.Node
+	0,  // 51: ast.Call.func:type_name -> ast.Node
+	0,  // 52: ast.Call.args:type_name -> ast.Node
+	26, // 53: ast.Call.keywords:type_name -> ast.Keyword
+	0,  // 54: ast.ClassDef.bases:type_name -> ast.Node
+	0,  // 55: ast.ClassDef.keywords:type_name -> ast.Node
+	0,  // 56: ast.ClassDef.body:type_name -> ast.Node
+	0,  // 57: ast.ClassDef.decorator_list:type_name -> ast.Node
+	0,  // 58: ast.ClassDef.type_params:type_name -> ast.Node
+	0,  // 59: ast.Compare.left:type_name -> ast.Node
+	0,  // 60: ast.Compare.ops:type_name -> ast.Node
+	0,  // 61: ast.Compare.comparators:type_name -> ast.Node
+	0,  // 62: ast.Dict.keys:type_name -> ast.Node
+	0,  // 63: ast.Dict.values:type_name -> ast.Node
+	0,  // 64: ast.Expr.value:type_name -> ast.Node
+	0,  // 65: ast.For.target:type_name -> ast.Node
+	0,  // 66: ast.For.iter:type_name -> ast.Node
+	0,  // 67: ast.For.body:type_name -> ast.Node
+	8,  // 68: ast.FunctionDef.Args:type_name -> ast.Arguments
+	0,  // 69: ast.FunctionDef.body:type_name -> ast.Node
+	0,  // 70: ast.FunctionDef.returns:type_name -> ast.Node
+	0,  // 71: ast.If.test:type_name -> ast.Node
+	0,  // 72: ast.If.body:type_name -> ast.Node
+	0,  // 73: ast.If.or_else:type_name -> ast.Node
+	0,  // 74: ast.Import.names:type_name -> ast.Node
+	0,  // 75: ast.ImportFrom.names:type_name -> ast.Node
+	0,  // 76: ast.ImportGroup.imports:type_name -> ast.Node
+	0,  // 77: ast.Keyword.value:type_name -> ast.Node
+	0,  // 78: ast.Module.body:type_name -> ast.Node
+	0,  // 79: ast.Return.value:type_name -> ast.Node
+	28, // 80: ast.Subscript.value:type_name -> ast.Name
+	0,  // 81: ast.Subscript.slice:type_name -> ast.Node
+	0,  // 82: ast.Yield.value:type_name -> ast.Node
+	0,  // 83: ast.TypeVar.bound:type_name -> ast.Node
+	84, // [84:84] is the sub-list for method output_type
+	84, // [84:84] is the sub-list for method input_type
+	84, // [84:84] is the sub-list for extension type_name
+	84, // [84:84] is the sub-list for extension extendee
+	0,  // [0:84] is the sub-list for field type_name
 }
 
-func init() { file_ast_ast_proto_init() }
-func file_ast_ast_proto_init() {
-	if File_ast_ast_proto != nil {
+func init() { file_protos_ast_ast_proto_init() }
+func file_protos_ast_ast_proto_init() {
+	if File_protos_ast_ast_proto != nil {
 		return
 	}
-	file_ast_ast_proto_msgTypes[0].OneofWrappers = []any{
+	file_protos_ast_ast_proto_msgTypes[0].OneofWrappers = []any{
 		(*Node_ClassDef)(nil),
 		(*Node_Import)(nil),
 		(*Node_ImportFrom)(nil),
@@ -2644,8 +2729,9 @@ func file_ast_ast_proto_init() {
 		(*Node_ImportGroup)(nil),
 		(*Node_BinOp)(nil),
 		(*Node_BitOr)(nil),
+		(*Node_TypeVar)(nil),
 	}
-	file_ast_ast_proto_msgTypes[16].OneofWrappers = []any{
+	file_protos_ast_ast_proto_msgTypes[16].OneofWrappers = []any{
 		(*Constant_Str)(nil),
 		(*Constant_Int)(nil),
 		(*Constant_None)(nil),
@@ -2654,17 +2740,17 @@ func file_ast_ast_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ast_ast_proto_rawDesc), len(file_ast_ast_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_protos_ast_ast_proto_rawDesc), len(file_protos_ast_ast_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   33,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_ast_ast_proto_goTypes,
-		DependencyIndexes: file_ast_ast_proto_depIdxs,
-		MessageInfos:      file_ast_ast_proto_msgTypes,
+		GoTypes:           file_protos_ast_ast_proto_goTypes,
+		DependencyIndexes: file_protos_ast_ast_proto_depIdxs,
+		MessageInfos:      file_protos_ast_ast_proto_msgTypes,
 	}.Build()
-	File_ast_ast_proto = out.File
-	file_ast_ast_proto_goTypes = nil
-	file_ast_ast_proto_depIdxs = nil
+	File_protos_ast_ast_proto = out.File
+	file_protos_ast_ast_proto_goTypes = nil
+	file_protos_ast_ast_proto_depIdxs = nil
 }
