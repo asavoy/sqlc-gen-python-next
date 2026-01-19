@@ -33,45 +33,31 @@ type Enum struct {
 }
 
 type pyType struct {
-	InnerType string
-	IsArray   bool
-	IsNull    bool
+	Name    string // Type name without module: "BookStatus", "int", "date"
+	Module  string // Module path: "", "datetime", "models", "my_lib.models", "typing"
+	IsArray bool
+	IsNull  bool
 }
 
-func (t pyType) Annotation() *pyast.Node {
+func (t pyType) Annotation(localModule string) *pyast.Node {
 	var ann *pyast.Node
-	// Handle dotted names like "models.EnumName" by converting to attribute access
-	if strings.Contains(t.InnerType, ".") {
-		parts := strings.Split(t.InnerType, ".")
-		ann = typeRefNode(parts[0], parts[1:]...)
-	} else {
-		ann = poet.Name(t.InnerType)
-	}
-	if t.IsArray {
-		ann = subscriptNode("list", ann)
-	}
-	if t.IsNull {
-		return poet.BinOp(ann, poet.BitOr(), poet.Constant(nil))
-	}
-	return ann
-}
 
-// AnnotationWithModelsPrefix returns the type annotation, adding "models." prefix
-// if the type appears to be a custom type (enum or model) without a module prefix.
-// This is needed when the type comes from a model struct that has been stripped of its prefix.
-func (t pyType) AnnotationWithModelsPrefix() *pyast.Node {
-	var ann *pyast.Node
-	// If type already has a dot, use it as-is
-	if strings.Contains(t.InnerType, ".") {
-		parts := strings.Split(t.InnerType, ".")
-		ann = typeRefNode(parts[0], parts[1:]...)
-	} else if len(t.InnerType) > 0 && t.InnerType[0] >= 'A' && t.InnerType[0] <= 'Z' {
-		// Type starts with uppercase letter and has no dots - likely a custom type
-		// Add models prefix
-		ann = typeRefNode("models", t.InnerType)
+	// If this type is from the local module context, omit the module prefix
+	if t.Module != "" && t.Module == localModule {
+		ann = poet.Name(t.Name)
+	} else if t.Module == "" {
+		// Builtin type, no module
+		ann = poet.Name(t.Name)
+	} else if t.Module == "typing" {
+		// Types from typing module are imported with "from typing import Name"
+		// so we use them without the module prefix
+		ann = poet.Name(t.Name)
 	} else {
-		ann = poet.Name(t.InnerType)
+		// External type, use full module.name path
+		parts := append(strings.Split(t.Module, "."), t.Name)
+		ann = typeRefNode(parts[0], parts[1:]...)
 	}
+
 	if t.IsArray {
 		ann = subscriptNode("list", ann)
 	}
@@ -110,7 +96,8 @@ type QueryValue struct {
 
 func (v QueryValue) Annotation() *pyast.Node {
 	if v.Typ != (pyType{}) {
-		return v.Typ.Annotation()
+		// In query files, we want full module paths, so pass "" as localModule
+		return v.Typ.Annotation("")
 	}
 	if v.Struct != nil {
 		if v.Emit {
@@ -137,8 +124,9 @@ func (v QueryValue) isEmpty() bool {
 func (v QueryValue) RowNode(rowVar string) *pyast.Node {
 	if !v.IsStruct() {
 		// For scalar returns, wrap with cast
+		// In query files, we want full module paths (e.g., models.EnumName)
 		return castNode(
-			v.Typ.Annotation(),
+			v.Typ.Annotation(""),
 			subscriptNode(
 				rowVar,
 				constantInt(0),
@@ -148,9 +136,8 @@ func (v QueryValue) RowNode(rowVar string) *pyast.Node {
 	call := &pyast.Call{
 		Func: v.Annotation(),
 	}
-	// If this struct is not being emitted (i.e., it's from models.py),
-	// we need to add "models." prefix to custom types in casts
-	useModelsPrefix := !v.Emit
+	// In query files, we always want full module paths for cast types
+	// Pass "" as localModule to get full paths like models.BookStatus
 	for _, f := range v.Struct.Fields {
 		var value *pyast.Node
 		if f.EmbedStruct != nil {
@@ -159,16 +146,10 @@ func (v QueryValue) RowNode(rowVar string) *pyast.Node {
 				Func: typeRefNode("models", f.EmbedStruct.Name),
 			}
 			for i, embedField := range f.EmbedStruct.Fields {
-				var castType *pyast.Node
-				if useModelsPrefix {
-					castType = embedField.Type.AnnotationWithModelsPrefix()
-				} else {
-					castType = embedField.Type.Annotation()
-				}
 				embedCall.Keywords = append(embedCall.Keywords, &pyast.Keyword{
 					Arg: embedField.Name,
 					Value: castNode(
-						castType,
+						embedField.Type.Annotation(""),
 						subscriptNode(
 							rowVar,
 							constantInt(f.ColumnOffset+i),
@@ -183,14 +164,8 @@ func (v QueryValue) RowNode(rowVar string) *pyast.Node {
 			}
 		} else {
 			// Regular scalar field - wrap with cast
-			var castType *pyast.Node
-			if useModelsPrefix {
-				castType = f.Type.AnnotationWithModelsPrefix()
-			} else {
-				castType = f.Type.Annotation()
-			}
 			value = castNode(
-				castType,
+				f.Type.Annotation(""),
 				subscriptNode(
 					rowVar,
 					constantInt(f.ColumnOffset),
@@ -290,17 +265,18 @@ func colTypeOverride(req *plugin.GenerateRequest, col *plugin.Column, conf Confi
 
 func makePyType(req *plugin.GenerateRequest, col *plugin.Column, conf Config) pyType {
 	typ := pyInnerType(req, col, conf)
-	return pyType{
-		InnerType: typ,
-		IsArray:   col.IsArray,
-		IsNull:    !col.NotNull,
-	}
+	typ.IsArray = col.IsArray
+	typ.IsNull = !col.NotNull
+	return typ
 }
 
-func pyInnerType(req *plugin.GenerateRequest, col *plugin.Column, conf Config) string {
+func pyInnerType(req *plugin.GenerateRequest, col *plugin.Column, conf Config) pyType {
 	if override := colTypeOverride(req, col, conf); override != nil {
 		if override.PyImport != "" && override.PyType != "" {
-			return override.PyImport + "." + override.PyType
+			return pyType{
+				Name:   override.PyType,
+				Module: override.PyImport,
+			}
 		}
 	}
 
@@ -309,7 +285,7 @@ func pyInnerType(req *plugin.GenerateRequest, col *plugin.Column, conf Config) s
 		return postgresTypeWithConfig(req, col, conf)
 	default:
 		log.Println("unsupported engine type")
-		return "Any"
+		return pyType{Name: "Any", Module: "typing"}
 	}
 }
 
@@ -400,7 +376,7 @@ func buildModels(conf Config, req *plugin.GenerateRequest) []Struct {
 			}
 			for _, column := range table.Columns {
 				typ := makePyType(req, column, conf) // TODO: This used to call compiler.ConvertColumn?
-				typ.InnerType = strings.TrimPrefix(typ.InnerType, "models.")
+				// No longer strip prefix - Annotation() handles module context
 				s.Fields = append(s.Fields, Field{
 					Name:    escapePythonKeyword(column.Name),
 					Type:    typ,
@@ -595,7 +571,7 @@ func buildQueries(conf Config, req *plugin.GenerateRequest, structs []Struct) ([
 							// Add embedded struct field
 							gs.Fields = append(gs.Fields, Field{
 								Name:         columnName(c, columnOffset),
-								Type:         pyType{InnerType: "models." + matchedStruct.Name, IsNull: false, IsArray: false},
+								Type:         pyType{Name: matchedStruct.Name, Module: "models", IsNull: false, IsArray: false},
 								EmbedStruct:  matchedStruct,
 								ColumnOffset: columnOffset,
 								ColumnCount:  len(matchedStruct.Fields),
@@ -605,7 +581,7 @@ func buildQueries(conf Config, req *plugin.GenerateRequest, structs []Struct) ([
 							// Embedded table not found, treat as Any
 							gs.Fields = append(gs.Fields, Field{
 								Name:         columnName(c, columnOffset),
-								Type:         pyType{InnerType: "Any", IsNull: true, IsArray: false},
+								Type:         pyType{Name: "Any", Module: "typing", IsNull: true, IsArray: false},
 								ColumnOffset: columnOffset,
 								ColumnCount:  1,
 							})
@@ -633,11 +609,10 @@ func buildQueries(conf Config, req *plugin.GenerateRequest, structs []Struct) ([
 
 					for i, f := range s.Fields {
 						c := query.Columns[i]
-						// HACK: models do not have "models." on their types, so trim that so we can find matches
-						trimmedPyType := makePyType(req, c, conf)
-						trimmedPyType.InnerType = strings.TrimPrefix(trimmedPyType.InnerType, "models.")
+						// Compare types directly now that we keep module info consistently
+						queryColumnType := makePyType(req, c, conf)
 						sameName := f.Name == columnName(c, i)
-						sameType := f.Type == trimmedPyType
+						sameType := f.Type == queryColumnType
 						sameTable := sdk.SameTableName(c.Table, &s.Table, req.Catalog.DefaultSchema)
 						if !sameName || !sameType || !sameTable {
 							same = false
@@ -808,13 +783,14 @@ func pydanticNode(name string) *pyast.ClassDef {
 	}
 }
 
-func fieldNode(f Field) *pyast.Node {
+func fieldNode(f Field, localModule string) *pyast.Node {
 	var annotation *pyast.Node
 	if f.EmbedStruct != nil {
 		// For embedded structs, use a proper type reference
 		annotation = typeRefNode("models", f.EmbedStruct.Name)
 	} else {
-		annotation = f.Type.Annotation()
+		// Pass the localModule context so types from that module don't get prefixed
+		annotation = f.Type.Annotation(localModule)
 	}
 	return &pyast.Node{
 		Node: &pyast.Node_AnnAssign{
@@ -959,7 +935,7 @@ func buildModelsTree(ctx *pyTmplCtx, i *importer) *pyast.Node {
 			})
 		}
 		for _, f := range m.Fields {
-			def.Body = append(def.Body, fieldNode(f))
+			def.Body = append(def.Body, fieldNode(f, "models"))
 		}
 		mod.Body = append(mod.Body, &pyast.Node{
 			Node: &pyast.Node_ClassDef{
@@ -1123,7 +1099,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 					def = dataclassNode(arg.Struct.Name)
 				}
 				for _, f := range arg.Struct.Fields {
-					def.Body = append(def.Body, fieldNode(f))
+					def.Body = append(def.Body, fieldNode(f, ""))
 				}
 				mod.Body = append(mod.Body, poet.Node(def))
 			}
@@ -1136,7 +1112,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				def = dataclassNode(q.Ret.Struct.Name)
 			}
 			for _, f := range q.Ret.Struct.Fields {
-				def.Body = append(def.Body, fieldNode(f))
+				def.Body = append(def.Body, fieldNode(f, ""))
 			}
 			mod.Body = append(mod.Body, poet.Node(def))
 		}

@@ -34,7 +34,12 @@ type importer struct {
 
 func structUses(name string, s Struct) bool {
 	for _, f := range s.Fields {
-		if f.Type.InnerType == name {
+		// Build full type name from Module.Name
+		fullName := f.Type.Name
+		if f.Type.Module != "" {
+			fullName = f.Type.Module + "." + f.Type.Name
+		}
+		if fullName == name {
 			return true
 		}
 	}
@@ -48,7 +53,12 @@ func queryValueUses(name string, qv QueryValue) bool {
 				return true
 			}
 		} else {
-			if qv.Typ.InnerType == name {
+			// Build full type name from Module.Name
+			fullName := qv.Typ.Name
+			if qv.Typ.Module != "" {
+				fullName = qv.Typ.Module + "." + qv.Typ.Name
+			}
+			if fullName == name {
 				return true
 			}
 		}
@@ -94,14 +104,8 @@ func (i *importer) modelImportSpecs() (map[string]importSpec, map[string]importS
 	overrideImports := make(map[string]bool)
 	for _, model := range i.Models {
 		for _, field := range model.Fields {
-			if strings.Contains(field.Type.InnerType, ".") {
-				lastDot := strings.LastIndex(field.Type.InnerType, ".")
-				if lastDot > 0 {
-					module := field.Type.InnerType[:lastDot]
-					if overrideModules[module] {
-						overrideImports[module] = true
-					}
-				}
+			if field.Type.Module != "" && overrideModules[field.Type.Module] {
+				overrideImports[field.Type.Module] = true
 			}
 		}
 	}
@@ -198,50 +202,26 @@ func (i *importer) queryImportSpecs(fileName string) (map[string]importSpec, map
 
 		if q.Ret.IsStruct() && q.Ret.EmitStruct() {
 			for _, field := range q.Ret.Struct.Fields {
-				if strings.Contains(field.Type.InnerType, ".") {
-					lastDot := strings.LastIndex(field.Type.InnerType, ".")
-					if lastDot > 0 {
-						module := field.Type.InnerType[:lastDot]
-						if overrideModules[module] {
-							overrideImports[module] = true
-						}
-					}
+				if field.Type.Module != "" && overrideModules[field.Type.Module] {
+					overrideImports[field.Type.Module] = true
 				}
 			}
 		} else if !q.Ret.isEmpty() {
-			if strings.Contains(q.Ret.Typ.InnerType, ".") {
-				lastDot := strings.LastIndex(q.Ret.Typ.InnerType, ".")
-				if lastDot > 0 {
-					module := q.Ret.Typ.InnerType[:lastDot]
-					if overrideModules[module] {
-						overrideImports[module] = true
-					}
-				}
+			if q.Ret.Typ.Module != "" && overrideModules[q.Ret.Typ.Module] {
+				overrideImports[q.Ret.Typ.Module] = true
 			}
 		}
 
 		for _, arg := range q.Args {
 			if arg.IsStruct() && arg.EmitStruct() {
 				for _, field := range arg.Struct.Fields {
-					if strings.Contains(field.Type.InnerType, ".") {
-						lastDot := strings.LastIndex(field.Type.InnerType, ".")
-						if lastDot > 0 {
-							module := field.Type.InnerType[:lastDot]
-							if overrideModules[module] {
-								overrideImports[module] = true
-							}
-						}
+					if field.Type.Module != "" && overrideModules[field.Type.Module] {
+						overrideImports[field.Type.Module] = true
 					}
 				}
 			} else if !arg.isEmpty() {
-				if strings.Contains(arg.Typ.InnerType, ".") {
-					lastDot := strings.LastIndex(arg.Typ.InnerType, ".")
-					if lastDot > 0 {
-						module := arg.Typ.InnerType[:lastDot]
-						if overrideModules[module] {
-							overrideImports[module] = true
-						}
-					}
+				if arg.Typ.Module != "" && overrideModules[arg.Typ.Module] {
+					overrideImports[arg.Typ.Module] = true
 				}
 			}
 		}
@@ -348,7 +328,7 @@ func stdImports(uses func(name string) bool) map[string]importSpec {
 	if uses("uuid.UUID") {
 		std["uuid"] = importSpec{Module: "uuid"}
 	}
-	if uses("Any") {
+	if uses("typing.Any") {
 		std["typing.Any"] = importSpec{Module: "typing", Name: "Any"}
 	}
 	return std
