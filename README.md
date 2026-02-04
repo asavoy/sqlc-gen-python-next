@@ -23,7 +23,7 @@ version: "2"
 plugins:
   - name: py
     wasm:
-      url: https://github.com/asavoy/alt-sqlc-gen-python/releases/download/v1.3.0/alt-sqlc-gen-python.wasm
+      url: https://github.com/asavoy/alt-sqlc-gen-python/releases/download/v0.1.0/alt-sqlc-gen-python.wasm
       sha256: TODO
 sql:
   - schema: "schema.sql"
