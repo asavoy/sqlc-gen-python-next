@@ -1,0 +1,52 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v1.3.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.5'
+
+    - name: Validate version format
+      run: |
+        if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: version must match vX.Y.Z format"
+          exit 1
+        fi
+
+    - name: Build WASM binary
+      run: |
+        mkdir -p bin
+        cd plugin && GOOS=wasip1 GOARCH=wasm go build -o ../bin/alt-sqlc-gen-python.wasm main.go
+
+    - name: Generate checksum
+      run: sha256sum bin/alt-sqlc-gen-python.wasm > bin/alt-sqlc-gen-python.wasm.sha256
+
+    - name: Create tag
+      run: |
+        git tag "${{ inputs.version }}"
+        git push origin "${{ inputs.version }}"
+
+    - name: Create GitHub release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ inputs.version }}
+        name: ${{ inputs.version }}
+        files: |
+          bin/alt-sqlc-gen-python.wasm
+          bin/alt-sqlc-gen-python.wasm.sha256
+        generate_release_notes: true
