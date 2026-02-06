@@ -27,9 +27,6 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: '3.14'
-      - name: Install python dependencies
-        working-directory: ./examples
-        run: uv pip install --system -r requirements.txt
       - name: Test python code
         working-directory: ./examples
         env:
@@ -38,4 +35,4 @@ jobs:
           PG_DATABASE: postgres
           PG_PASSWORD: postgres
           PG_PORT: ${{ job.services.postgres.ports['5432'] }}
-        run: uv run pytest src/tests
+        run: uv run --with-requirements requirements.txt pytest src/tests
