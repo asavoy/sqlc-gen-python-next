@@ -382,28 +382,6 @@ func (q Query) AddBatchArgs(args *pyast.Arguments) {
 	})
 }
 
-func batchConnMethodNode(method, name string, batchArg *pyast.Node) *pyast.Node {
-	return &pyast.Node{
-		Node: &pyast.Node_Call{
-			Call: &pyast.Call{
-				Func: typeRefNode("self", "_conn", method),
-				Args: []*pyast.Node{
-					{
-						Node: &pyast.Node_Call{
-							Call: &pyast.Call{
-								Func: typeRefNode("sqlalchemy", "text"),
-								Args: []*pyast.Node{
-									poet.Name(name),
-								},
-							},
-						},
-					},
-					batchArg,
-				},
-			},
-		},
-	}
-}
 
 func colTypeOverride(req *plugin.GenerateRequest, col *plugin.Column, conf Config) *Override {
 	if col.Table == nil {
@@ -672,21 +650,8 @@ func buildQueries(conf Config, req *plugin.GenerateRequest, structs []Struct) ([
 		if qpl < 0 {
 			return nil, errors.New("invalid query parameter limit")
 		}
-		if query.Cmd == metadata.CmdBatchExec {
-			// Batch exec always uses a Params struct
-			var cols []pyColumn
-			for _, p := range query.Params {
-				cols = append(cols, pyColumn{
-					id:     p.Number,
-					Column: p.Column,
-				})
-			}
-			gq.Args = []QueryValue{{
-				Emit:   true,
-				Name:   "arg",
-				Struct: columnsToStruct(req, query.Name+"Params", cols, conf),
-			}}
-		} else if len(query.Params) > qpl || qpl == 0 {
+		useParamsStruct := query.Cmd == metadata.CmdBatchExec || len(query.Params) > qpl || qpl == 0
+		if useParamsStruct {
 			var cols []pyColumn
 			for _, p := range query.Params {
 				cols = append(cols, pyColumn{
@@ -1242,18 +1207,9 @@ func asyncQuerierClassDef() *pyast.ClassDef {
 	}
 }
 
-func querierProtocolClassDef() *pyast.ClassDef {
+func protocolClassDef(name string) *pyast.ClassDef {
 	return &pyast.ClassDef{
-		Name: "QuerierProtocol",
-		Bases: []*pyast.Node{
-			typeRefNode("typing", "Protocol"),
-		},
-	}
-}
-
-func asyncQuerierProtocolClassDef() *pyast.ClassDef {
-	return &pyast.ClassDef{
-		Name: "AsyncQuerierProtocol",
+		Name: name,
 		Bases: []*pyast.Node{
 			typeRefNode("typing", "Protocol"),
 		},
@@ -1309,14 +1265,6 @@ func protocolMethodNode(q Query, async bool) *pyast.Node {
 		Body:    body,
 		Returns: returns,
 	})
-}
-
-func isWriteQuery(q Query) bool {
-	sql := strings.TrimSpace(strings.ToUpper(q.SQL))
-	return strings.HasPrefix(sql, "INSERT") ||
-		strings.HasPrefix(sql, "UPDATE") ||
-		strings.HasPrefix(sql, "DELETE") ||
-		strings.HasPrefix(sql, "MERGE")
 }
 
 func errorRaiseNode(wrapperFunc string, queryName string) *pyast.Node {
@@ -1420,7 +1368,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 	}
 
 	if ctx.C.EmitQuerierProtocol && ctx.C.EmitSyncQuerier {
-		cls := querierProtocolClassDef()
+		cls := protocolClassDef("QuerierProtocol")
 		for _, q := range ctx.Queries {
 			if !ctx.OutputQuery(q.SourceName) {
 				continue
@@ -1431,7 +1379,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 	}
 
 	if ctx.C.EmitQuerierProtocol && ctx.C.EmitAsyncQuerier {
-		cls := asyncQuerierProtocolClassDef()
+		cls := protocolClassDef("AsyncQuerierProtocol")
 		for _, q := range ctx.Queries {
 			if !ctx.OutputQuery(q.SourceName) {
 				continue
@@ -1555,7 +1503,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				f.Returns = typeRefNode("sqlalchemy", "engine", "Result")
 			case ":batchexec":
 				q.AddBatchArgs(f.Args)
-				batchExec := batchConnMethodNode("execute", q.ConstantName, q.BatchArgListNode())
+				batchExec := connMethodNode("execute", q.ConstantName, q.BatchArgListNode())
 				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{poet.Expr(batchExec)}, q.MethodName)...)
@@ -1687,7 +1635,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				f.Returns = typeRefNode("sqlalchemy", "engine", "Result")
 			case ":batchexec":
 				q.AddBatchArgs(f.Args)
-				batchExec := batchConnMethodNode("execute", q.ConstantName, q.BatchArgListNode())
+				batchExec := connMethodNode("execute", q.ConstantName, q.BatchArgListNode())
 				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{poet.Expr(poet.Await(batchExec))}, q.MethodName)...)
