@@ -15,6 +15,9 @@ This is a fork of [sqlc-gen-python](https://github.com/sqlc-dev/sqlc-gen-python)
    - Imports `Iterator` and `AsyncIterator` from `collections.abc` instead of `typing`
    - Assigns unused results to `_` variable
 - Handles fields with names that conflict with Python reserved keywords
+- Supports `:batchexec` for efficient bulk inserts
+- Generates `typing.Protocol` classes for querier testability
+- Generates typed error wrapping for database constraint violations
 
 ## Usage
 
@@ -47,7 +50,7 @@ These options generate `Querier` and/or `AsyncQuerier` classes that wrap a SQLAl
 - `Querier` accepts `sqlalchemy.engine.Connection | sqlalchemy.orm.Session`
 - `AsyncQuerier` accepts `sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.asyncio.AsyncSession`
 
-The query command (`:one`, `:many`, `:exec`, `:execrows`, `:execresult`) determines the method signature:
+The query command (`:one`, `:many`, `:exec`, `:execrows`, `:execresult`, `:batchexec`) determines the method signature:
 
 | Command | Sync return type | Async return type |
 |---|---|---|
@@ -56,6 +59,7 @@ The query command (`:one`, `:many`, `:exec`, `:execrows`, `:execresult`) determi
 | `:exec` | `None` | `None` |
 | `:execrows` | `int` | `int` |
 | `:execresult` | `sqlalchemy.engine.Result` | `sqlalchemy.engine.Result` |
+| `:batchexec` | `None` | `None` |
 
 Example generated code with both options enabled:
 
@@ -107,6 +111,113 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
                 name=cast(str, row[1]),
             )
 ```
+
+### Batch Exec
+
+Command: `:batchexec`
+
+Use `:batchexec` to efficiently insert or modify multiple rows in a single call. The generated method accepts a list of parameter structs and uses SQLAlchemy's `executemany` under the hood.
+
+```sql
+-- name: CreateAuthors :batchexec
+INSERT INTO authors (name, bio) VALUES ($1, $2);
+```
+
+Generated code:
+
+```py
+@dataclasses.dataclass()
+class CreateAuthorsParams:
+    name: str
+    bio: str | None
+
+
+class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
+    # ...
+
+    def create_authors(self, *, args: list[CreateAuthorsParams]) -> None:
+        self._conn.execute(sqlalchemy.text(CREATE_AUTHORS), [{"p1": a.name, "p2": a.bio} for a in args])
+```
+
+A Params struct is always generated for `:batchexec` regardless of the `query_parameter_limit` setting.
+
+### Querier Protocols for Testability
+
+Option: `emit_querier_protocol`
+
+Generates `QuerierProtocol` and `AsyncQuerierProtocol` classes using `typing.Protocol`. These mirror every method signature on the concrete querier classes, allowing application code to depend on the protocol and tests to substitute a simple fake.
+
+```yaml
+options:
+  emit_sync_querier: true
+  emit_async_querier: true
+  emit_querier_protocol: true
+```
+
+Generated code:
+
+```py
+class QuerierProtocol(typing.Protocol):
+    def get_author(self, *, id: int) -> models.Author | None: ...
+    def list_authors(self) -> Iterator[models.Author]: ...
+    def create_author(self, *, name: str, bio: str | None) -> None: ...
+```
+
+Usage in application code:
+
+```py
+# Application code depends on the protocol
+def get_author_bio(querier: QuerierProtocol, author_id: int) -> str:
+    author = querier.get_author(id=author_id)
+    return author.bio if author else "Unknown"
+
+# Tests use a simple fake — fully type-checked
+class FakeQuerier:
+    def get_author(self, *, id):
+        return models.Author(id=1, name="Test", bio="A bio")
+    # ... other methods ...
+```
+
+Protocols are only emitted when the corresponding `emit_sync_querier` / `emit_async_querier` is also enabled.
+
+### Typed Error Wrapping
+
+Option: `emit_query_errors`
+
+Generates an `errors.py` module with typed exception classes for PostgreSQL constraint violations, and wraps write-query methods (INSERT, UPDATE, DELETE) with try/except to raise these typed errors instead of raw `sqlalchemy.exc.IntegrityError`.
+
+```yaml
+options:
+  emit_query_errors: true
+```
+
+Generated `errors.py` contains:
+
+| Exception | PostgreSQL SQLSTATE |
+|---|---|
+| `UniqueViolationError` | 23505 |
+| `ForeignKeyViolationError` | 23503 |
+| `CheckViolationError` | 23514 |
+| `NotNullViolationError` | 23502 |
+| `ExclusionViolationError` | 23P01 |
+| `QueryError` | All other integrity errors |
+
+All exceptions include a `query_name` attribute for identifying which query failed, and a `cause` attribute containing the original SQLAlchemy exception.
+
+Generated write-query methods are wrapped:
+
+```py
+def create_author(self, *, name: str, bio: str | None) -> models.Author | None:
+    try:
+        row = self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio}).first()
+    except sqlalchemy.exc.IntegrityError as e:
+        raise errors._wrap_integrity_error(e, "create_author") from e
+    if row is None:
+        return None
+    return models.Author(...)
+```
+
+Read-only queries (SELECT) are not wrapped since they don't raise integrity errors. The error code extraction uses a portable pattern that works across psycopg2, psycopg3, and asyncpg drivers.
 
 ### Embedded Structs with `sqlc.embed()`
 
