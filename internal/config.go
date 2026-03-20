@@ -17,4 +17,5 @@ type Config struct {
 	QueryParameterLimit         *int32     `json:"query_parameter_limit"`
 	InflectionExcludeTableNames []string   `json:"inflection_exclude_table_names"`
 	Overrides                   []Override `json:"overrides"`
+	EmitQuerierProtocol         bool       `json:"emit_querier_protocol"`
 }
