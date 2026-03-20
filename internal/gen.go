@@ -243,6 +243,75 @@ func (q Query) ArgDictNode() *pyast.Node {
 	}
 }
 
+func (q Query) BatchArgListNode() *pyast.Node {
+	var keys []*pyast.Node
+	var values []*pyast.Node
+
+	if len(q.Args) == 1 && q.Args[0].IsStruct() {
+		for i, f := range q.Args[0].Struct.Fields {
+			keys = append(keys, poet.Constant(fmt.Sprintf("p%d", i+1)))
+			values = append(values, poet.Attribute(poet.Name("a"), f.Name))
+		}
+	}
+
+	dictNode := &pyast.Node{
+		Node: &pyast.Node_Dict{
+			Dict: &pyast.Dict{
+				Keys:   keys,
+				Values: values,
+			},
+		},
+	}
+
+	return poet.ListComp(
+		dictNode,
+		[]*pyast.Node{
+			poet.Comprehension(poet.Name("a"), poet.Name("args")),
+		},
+	)
+}
+
+func (q Query) AddBatchArgs(args *pyast.Arguments) {
+	if len(q.Args) != 1 || !q.Args[0].IsStruct() {
+		panic("batchexec requires exactly one struct arg")
+	}
+	listAnnotation := &pyast.Node{
+		Node: &pyast.Node_Subscript{
+			Subscript: &pyast.Subscript{
+				Value: &pyast.Name{Id: "list"},
+				Slice: q.Args[0].Annotation(),
+			},
+		},
+	}
+	args.KwOnlyArgs = append(args.KwOnlyArgs, &pyast.Arg{
+		Arg:        "args",
+		Annotation: listAnnotation,
+	})
+}
+
+func batchConnMethodNode(method, name string, batchArg *pyast.Node) *pyast.Node {
+	return &pyast.Node{
+		Node: &pyast.Node_Call{
+			Call: &pyast.Call{
+				Func: typeRefNode("self", "_conn", method),
+				Args: []*pyast.Node{
+					{
+						Node: &pyast.Node_Call{
+							Call: &pyast.Call{
+								Func: typeRefNode("sqlalchemy", "text"),
+								Args: []*pyast.Node{
+									poet.Name(name),
+								},
+							},
+						},
+					},
+					batchArg,
+				},
+			},
+		},
+	}
+}
+
 func colTypeOverride(req *plugin.GenerateRequest, col *plugin.Column, conf Config) *Override {
 	if col.Table == nil {
 		return nil
@@ -485,6 +554,11 @@ func buildQueries(conf Config, req *plugin.GenerateRequest, structs []Struct) ([
 		if query.Cmd == metadata.CmdCopyFrom {
 			return nil, errors.New("Support for CopyFrom in Python is not implemented")
 		}
+		if query.Cmd == metadata.CmdBatchExec {
+			// Handled below — continue processing
+		} else if query.Cmd == metadata.CmdBatchOne || query.Cmd == metadata.CmdBatchMany {
+			return nil, fmt.Errorf("Support for %s in Python is not implemented", query.Cmd)
+		}
 
 		methodName := methodName(query.Name)
 
@@ -505,7 +579,21 @@ func buildQueries(conf Config, req *plugin.GenerateRequest, structs []Struct) ([
 		if qpl < 0 {
 			return nil, errors.New("invalid query parameter limit")
 		}
-		if len(query.Params) > qpl || qpl == 0 {
+		if query.Cmd == metadata.CmdBatchExec {
+			// Batch exec always uses a Params struct
+			var cols []pyColumn
+			for _, p := range query.Params {
+				cols = append(cols, pyColumn{
+					id:     p.Number,
+					Column: p.Column,
+				})
+			}
+			gq.Args = []QueryValue{{
+				Emit:   true,
+				Name:   "arg",
+				Struct: columnsToStruct(req, query.Name+"Params", cols, conf),
+			}}
+		} else if len(query.Params) > qpl || qpl == 0 {
 			var cols []pyColumn
 			for _, p := range query.Params {
 				cols = append(cols, pyColumn{
@@ -1085,7 +1173,9 @@ func protocolMethodNode(q Query, async bool) *pyast.Node {
 			{Arg: "self"},
 		},
 	}
-	q.AddArgs(args)
+	if q.Cmd != ":batchexec" {
+		q.AddArgs(args)
+	}
 
 	// Body is just ... (Ellipsis)
 	body := []*pyast.Node{poet.Name("...")}
@@ -1107,6 +1197,9 @@ func protocolMethodNode(q Query, async bool) *pyast.Node {
 		returns = poet.Name("int")
 	case ":execresult":
 		returns = typeRefNode("sqlalchemy", "engine", "Result")
+	case ":batchexec":
+		q.AddBatchArgs(args)
+		returns = poet.Constant(nil)
 	}
 
 	if async {
@@ -1221,7 +1314,9 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				},
 			}
 
-			q.AddArgs(f.Args)
+			if q.Cmd != ":batchexec" {
+				q.AddArgs(f.Args)
+			}
 			exec := connMethodNode("execute", q.ConstantName, q.ArgDictNode())
 
 			switch q.Cmd {
@@ -1287,6 +1382,11 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 					poet.Return(exec),
 				)
 				f.Returns = typeRefNode("sqlalchemy", "engine", "Result")
+			case ":batchexec":
+				q.AddBatchArgs(f.Args)
+				batchExec := batchConnMethodNode("execute", q.ConstantName, q.BatchArgListNode())
+				f.Body = append(f.Body, poet.Expr(batchExec))
+				f.Returns = poet.Constant(nil)
 			default:
 				panic("unknown cmd " + q.Cmd)
 			}
@@ -1313,7 +1413,9 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				},
 			}
 
-			q.AddArgs(f.Args)
+			if q.Cmd != ":batchexec" {
+				q.AddArgs(f.Args)
+			}
 			exec := connMethodNode("execute", q.ConstantName, q.ArgDictNode())
 
 			switch q.Cmd {
@@ -1380,6 +1482,11 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 					poet.Return(poet.Await(exec)),
 				)
 				f.Returns = typeRefNode("sqlalchemy", "engine", "Result")
+			case ":batchexec":
+				q.AddBatchArgs(f.Args)
+				batchExec := batchConnMethodNode("execute", q.ConstantName, q.BatchArgListNode())
+				f.Body = append(f.Body, poet.Expr(poet.Await(batchExec)))
+				f.Returns = poet.Constant(nil)
 			default:
 				panic("unknown cmd " + q.Cmd)
 			}
