@@ -39,6 +39,11 @@ message Node {
     BinOp bin_op = 31 [json_name="BinOp"];
     BitOr bit_or = 32 [json_name="BitOr"];
     TypeVar type_var = 33 [json_name="TypeVar"];
+    ListComp list_comp = 34 [json_name="ListComp"];
+    Comprehension comprehension = 35 [json_name="Comprehension"];
+    Try try = 36 [json_name="Try"];
+    ExceptHandler except_handler = 37 [json_name="ExceptHandler"];
+    Raise raise = 38 [json_name="Raise"];
   }
 }
 
@@ -258,5 +263,36 @@ message TypeVar
 {
   string name = 1 [json_name="name"];
   Node bound = 2 [json_name="bound"];
+}
+
+message ListComp
+{
+  Node elt = 1 [json_name="elt"];
+  repeated Node generators = 2 [json_name="generators"];
+}
+
+message Comprehension
+{
+  Node target = 1 [json_name="target"];
+  Node iter = 2 [json_name="iter"];
+}
+
+message Try
+{
+  repeated Node body = 1 [json_name="body"];
+  repeated Node handlers = 2 [json_name="handlers"];
+}
+
+message ExceptHandler
+{
+  Node type = 1 [json_name="type"];
+  string name = 2 [json_name="name"];
+  repeated Node body = 3 [json_name="body"];
+}
+
+message Raise
+{
+  Node exc = 1 [json_name="exc"];
+  Node cause = 2 [json_name="cause"];
 }
 

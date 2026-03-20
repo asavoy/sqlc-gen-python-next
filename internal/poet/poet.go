@@ -189,6 +189,41 @@ func Node(node proto) *ast.Node {
 			},
 		}
 
+	case *ast.ListComp:
+		return &ast.Node{
+			Node: &ast.Node_ListComp{
+				ListComp: n,
+			},
+		}
+
+	case *ast.Comprehension:
+		return &ast.Node{
+			Node: &ast.Node_Comprehension{
+				Comprehension: n,
+			},
+		}
+
+	case *ast.Try:
+		return &ast.Node{
+			Node: &ast.Node_Try{
+				Try: n,
+			},
+		}
+
+	case *ast.ExceptHandler:
+		return &ast.Node{
+			Node: &ast.Node_ExceptHandler{
+				ExceptHandler: n,
+			},
+		}
+
+	case *ast.Raise:
+		return &ast.Node{
+			Node: &ast.Node_Raise{
+				Raise: n,
+			},
+		}
+
 	default:
 		panic(n)
 	}

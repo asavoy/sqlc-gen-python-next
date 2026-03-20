@@ -58,6 +58,11 @@ type Node struct {
 	//	*Node_BinOp
 	//	*Node_BitOr
 	//	*Node_TypeVar
+	//	*Node_ListComp
+	//	*Node_Comprehension
+	//	*Node_Try
+	//	*Node_ExceptHandler
+	//	*Node_Raise
 	Node          isNode_Node `protobuf_oneof:"node"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -397,6 +402,51 @@ func (x *Node) GetTypeVar() *TypeVar {
 	return nil
 }
 
+func (x *Node) GetListComp() *ListComp {
+	if x != nil {
+		if x, ok := x.Node.(*Node_ListComp); ok {
+			return x.ListComp
+		}
+	}
+	return nil
+}
+
+func (x *Node) GetComprehension() *Comprehension {
+	if x != nil {
+		if x, ok := x.Node.(*Node_Comprehension); ok {
+			return x.Comprehension
+		}
+	}
+	return nil
+}
+
+func (x *Node) GetTry() *Try {
+	if x != nil {
+		if x, ok := x.Node.(*Node_Try); ok {
+			return x.Try
+		}
+	}
+	return nil
+}
+
+func (x *Node) GetExceptHandler() *ExceptHandler {
+	if x != nil {
+		if x, ok := x.Node.(*Node_ExceptHandler); ok {
+			return x.ExceptHandler
+		}
+	}
+	return nil
+}
+
+func (x *Node) GetRaise() *Raise {
+	if x != nil {
+		if x, ok := x.Node.(*Node_Raise); ok {
+			return x.Raise
+		}
+	}
+	return nil
+}
+
 type isNode_Node interface {
 	isNode_Node()
 }
@@ -533,6 +583,26 @@ type Node_TypeVar struct {
 	TypeVar *TypeVar `protobuf:"bytes,33,opt,name=type_var,json=TypeVar,proto3,oneof"`
 }
 
+type Node_ListComp struct {
+	ListComp *ListComp `protobuf:"bytes,34,opt,name=list_comp,json=ListComp,proto3,oneof"`
+}
+
+type Node_Comprehension struct {
+	Comprehension *Comprehension `protobuf:"bytes,35,opt,name=comprehension,json=Comprehension,proto3,oneof"`
+}
+
+type Node_Try struct {
+	Try *Try `protobuf:"bytes,36,opt,name=try,json=Try,proto3,oneof"`
+}
+
+type Node_ExceptHandler struct {
+	ExceptHandler *ExceptHandler `protobuf:"bytes,37,opt,name=except_handler,json=ExceptHandler,proto3,oneof"`
+}
+
+type Node_Raise struct {
+	Raise *Raise `protobuf:"bytes,38,opt,name=raise,json=Raise,proto3,oneof"`
+}
+
 func (*Node_ClassDef) isNode_Node() {}
 
 func (*Node_Import) isNode_Node() {}
@@ -598,6 +668,16 @@ func (*Node_BinOp) isNode_Node() {}
 func (*Node_BitOr) isNode_Node() {}
 
 func (*Node_TypeVar) isNode_Node() {}
+
+func (*Node_ListComp) isNode_Node() {}
+
+func (*Node_Comprehension) isNode_Node() {}
+
+func (*Node_Try) isNode_Node() {}
+
+func (*Node_ExceptHandler) isNode_Node() {}
+
+func (*Node_Raise) isNode_Node() {}
 
 type Alias struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2391,12 +2471,279 @@ func (x *TypeVar) GetBound() *Node {
 	return nil
 }
 
+type ListComp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Elt           *Node                  `protobuf:"bytes,1,opt,name=elt,proto3" json:"elt,omitempty"`
+	Generators    []*Node                `protobuf:"bytes,2,rep,name=generators,proto3" json:"generators,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListComp) Reset() {
+	*x = ListComp{}
+	mi := &file_protos_ast_ast_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListComp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListComp) ProtoMessage() {}
+
+func (x *ListComp) ProtoReflect() protoreflect.Message {
+	mi := &file_protos_ast_ast_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListComp.ProtoReflect.Descriptor instead.
+func (*ListComp) Descriptor() ([]byte, []int) {
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *ListComp) GetElt() *Node {
+	if x != nil {
+		return x.Elt
+	}
+	return nil
+}
+
+func (x *ListComp) GetGenerators() []*Node {
+	if x != nil {
+		return x.Generators
+	}
+	return nil
+}
+
+type Comprehension struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Target        *Node                  `protobuf:"bytes,1,opt,name=target,proto3" json:"target,omitempty"`
+	Iter          *Node                  `protobuf:"bytes,2,opt,name=iter,proto3" json:"iter,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Comprehension) Reset() {
+	*x = Comprehension{}
+	mi := &file_protos_ast_ast_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Comprehension) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Comprehension) ProtoMessage() {}
+
+func (x *Comprehension) ProtoReflect() protoreflect.Message {
+	mi := &file_protos_ast_ast_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Comprehension.ProtoReflect.Descriptor instead.
+func (*Comprehension) Descriptor() ([]byte, []int) {
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *Comprehension) GetTarget() *Node {
+	if x != nil {
+		return x.Target
+	}
+	return nil
+}
+
+func (x *Comprehension) GetIter() *Node {
+	if x != nil {
+		return x.Iter
+	}
+	return nil
+}
+
+type Try struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Body          []*Node                `protobuf:"bytes,1,rep,name=body,proto3" json:"body,omitempty"`
+	Handlers      []*Node                `protobuf:"bytes,2,rep,name=handlers,proto3" json:"handlers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Try) Reset() {
+	*x = Try{}
+	mi := &file_protos_ast_ast_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Try) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Try) ProtoMessage() {}
+
+func (x *Try) ProtoReflect() protoreflect.Message {
+	mi := &file_protos_ast_ast_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Try.ProtoReflect.Descriptor instead.
+func (*Try) Descriptor() ([]byte, []int) {
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *Try) GetBody() []*Node {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+func (x *Try) GetHandlers() []*Node {
+	if x != nil {
+		return x.Handlers
+	}
+	return nil
+}
+
+type ExceptHandler struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          *Node                  `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Body          []*Node                `protobuf:"bytes,3,rep,name=body,proto3" json:"body,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExceptHandler) Reset() {
+	*x = ExceptHandler{}
+	mi := &file_protos_ast_ast_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExceptHandler) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExceptHandler) ProtoMessage() {}
+
+func (x *ExceptHandler) ProtoReflect() protoreflect.Message {
+	mi := &file_protos_ast_ast_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExceptHandler.ProtoReflect.Descriptor instead.
+func (*ExceptHandler) Descriptor() ([]byte, []int) {
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *ExceptHandler) GetType() *Node {
+	if x != nil {
+		return x.Type
+	}
+	return nil
+}
+
+func (x *ExceptHandler) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ExceptHandler) GetBody() []*Node {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+type Raise struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Exc           *Node                  `protobuf:"bytes,1,opt,name=exc,proto3" json:"exc,omitempty"`
+	Cause         *Node                  `protobuf:"bytes,2,opt,name=cause,proto3" json:"cause,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Raise) Reset() {
+	*x = Raise{}
+	mi := &file_protos_ast_ast_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Raise) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Raise) ProtoMessage() {}
+
+func (x *Raise) ProtoReflect() protoreflect.Message {
+	mi := &file_protos_ast_ast_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Raise.ProtoReflect.Descriptor instead.
+func (*Raise) Descriptor() ([]byte, []int) {
+	return file_protos_ast_ast_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *Raise) GetExc() *Node {
+	if x != nil {
+		return x.Exc
+	}
+	return nil
+}
+
+func (x *Raise) GetCause() *Node {
+	if x != nil {
+		return x.Cause
+	}
+	return nil
+}
+
 var File_protos_ast_ast_proto protoreflect.FileDescriptor
 
 const file_protos_ast_ast_proto_rawDesc = "" +
 	"\n" +
-	"\x14protos/ast/ast.proto\x12\x03ast\"\xd3\n" +
-	"\n" +
+	"\x14protos/ast/ast.proto\x12\x03ast\"\xbc\f\n" +
 	"\x04Node\x12,\n" +
 	"\tclass_def\x18\x01 \x01(\v2\r.ast.ClassDefH\x00R\bClassDef\x12%\n" +
 	"\x06import\x18\x02 \x01(\v2\v.ast.ImportH\x00R\x06Import\x122\n" +
@@ -2438,7 +2785,13 @@ const file_protos_ast_ast_proto_rawDesc = "" +
 	".ast.BinOpH\x00R\x05BinOp\x12#\n" +
 	"\x06bit_or\x18  \x01(\v2\n" +
 	".ast.BitOrH\x00R\x05BitOr\x12)\n" +
-	"\btype_var\x18! \x01(\v2\f.ast.TypeVarH\x00R\aTypeVarB\x06\n" +
+	"\btype_var\x18! \x01(\v2\f.ast.TypeVarH\x00R\aTypeVar\x12,\n" +
+	"\tlist_comp\x18\" \x01(\v2\r.ast.ListCompH\x00R\bListComp\x12:\n" +
+	"\rcomprehension\x18# \x01(\v2\x12.ast.ComprehensionH\x00R\rComprehension\x12\x1c\n" +
+	"\x03try\x18$ \x01(\v2\b.ast.TryH\x00R\x03Try\x12;\n" +
+	"\x0eexcept_handler\x18% \x01(\v2\x12.ast.ExceptHandlerH\x00R\rExceptHandler\x12\"\n" +
+	"\x05raise\x18& \x01(\v2\n" +
+	".ast.RaiseH\x00R\x05RaiseB\x06\n" +
 	"\x04node\"\x1b\n" +
 	"\x05Alias\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"(\n" +
@@ -2548,7 +2901,25 @@ const file_protos_ast_ast_proto_rawDesc = "" +
 	"\x05value\x18\x01 \x01(\v2\t.ast.NodeR\x05value\">\n" +
 	"\aTypeVar\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
-	"\x05bound\x18\x02 \x01(\v2\t.ast.NodeR\x05boundB4Z2github.com/asavoy/alt-sqlc-gen-python/internal/astb\x06proto3"
+	"\x05bound\x18\x02 \x01(\v2\t.ast.NodeR\x05bound\"R\n" +
+	"\bListComp\x12\x1b\n" +
+	"\x03elt\x18\x01 \x01(\v2\t.ast.NodeR\x03elt\x12)\n" +
+	"\n" +
+	"generators\x18\x02 \x03(\v2\t.ast.NodeR\n" +
+	"generators\"Q\n" +
+	"\rComprehension\x12!\n" +
+	"\x06target\x18\x01 \x01(\v2\t.ast.NodeR\x06target\x12\x1d\n" +
+	"\x04iter\x18\x02 \x01(\v2\t.ast.NodeR\x04iter\"K\n" +
+	"\x03Try\x12\x1d\n" +
+	"\x04body\x18\x01 \x03(\v2\t.ast.NodeR\x04body\x12%\n" +
+	"\bhandlers\x18\x02 \x03(\v2\t.ast.NodeR\bhandlers\"a\n" +
+	"\rExceptHandler\x12\x1d\n" +
+	"\x04type\x18\x01 \x01(\v2\t.ast.NodeR\x04type\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\x04body\x18\x03 \x03(\v2\t.ast.NodeR\x04body\"E\n" +
+	"\x05Raise\x12\x1b\n" +
+	"\x03exc\x18\x01 \x01(\v2\t.ast.NodeR\x03exc\x12\x1f\n" +
+	"\x05cause\x18\x02 \x01(\v2\t.ast.NodeR\x05causeB4Z2github.com/asavoy/alt-sqlc-gen-python/internal/astb\x06proto3"
 
 var (
 	file_protos_ast_ast_proto_rawDescOnce sync.Once
@@ -2562,7 +2933,7 @@ func file_protos_ast_ast_proto_rawDescGZIP() []byte {
 	return file_protos_ast_ast_proto_rawDescData
 }
 
-var file_protos_ast_ast_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_protos_ast_ast_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_protos_ast_ast_proto_goTypes = []any{
 	(*Node)(nil),             // 0: ast.Node
 	(*Alias)(nil),            // 1: ast.Alias
@@ -2598,6 +2969,11 @@ var file_protos_ast_ast_proto_goTypes = []any{
 	(*Subscript)(nil),        // 31: ast.Subscript
 	(*Yield)(nil),            // 32: ast.Yield
 	(*TypeVar)(nil),          // 33: ast.TypeVar
+	(*ListComp)(nil),         // 34: ast.ListComp
+	(*Comprehension)(nil),    // 35: ast.Comprehension
+	(*Try)(nil),              // 36: ast.Try
+	(*ExceptHandler)(nil),    // 37: ast.ExceptHandler
+	(*Raise)(nil),            // 38: ast.Raise
 }
 var file_protos_ast_ast_proto_depIdxs = []int32{
 	13, // 0: ast.Node.class_def:type_name -> ast.ClassDef
@@ -2633,62 +3009,77 @@ var file_protos_ast_ast_proto_depIdxs = []int32{
 	3,  // 30: ast.Node.bin_op:type_name -> ast.BinOp
 	4,  // 31: ast.Node.bit_or:type_name -> ast.BitOr
 	33, // 32: ast.Node.type_var:type_name -> ast.TypeVar
-	0,  // 33: ast.Await.value:type_name -> ast.Node
-	0,  // 34: ast.BinOp.left:type_name -> ast.Node
-	0,  // 35: ast.BinOp.op:type_name -> ast.Node
-	0,  // 36: ast.BinOp.right:type_name -> ast.Node
-	0,  // 37: ast.Attribute.value:type_name -> ast.Node
-	28, // 38: ast.AnnAssign.target:type_name -> ast.Name
-	0,  // 39: ast.AnnAssign.annotation:type_name -> ast.Node
-	0,  // 40: ast.Arg.annotation:type_name -> ast.Node
-	7,  // 41: ast.Arguments.args:type_name -> ast.Arg
-	7,  // 42: ast.Arguments.kw_only_args:type_name -> ast.Arg
-	0,  // 43: ast.AsyncFor.target:type_name -> ast.Node
-	0,  // 44: ast.AsyncFor.iter:type_name -> ast.Node
-	0,  // 45: ast.AsyncFor.body:type_name -> ast.Node
-	8,  // 46: ast.AsyncFunctionDef.Args:type_name -> ast.Arguments
-	0,  // 47: ast.AsyncFunctionDef.body:type_name -> ast.Node
-	0,  // 48: ast.AsyncFunctionDef.returns:type_name -> ast.Node
-	0,  // 49: ast.Assign.targets:type_name -> ast.Node
-	0,  // 50: ast.Assign.value:type_name -> ast.Node
-	0,  // 51: ast.Call.func:type_name -> ast.Node
-	0,  // 52: ast.Call.args:type_name -> ast.Node
-	26, // 53: ast.Call.keywords:type_name -> ast.Keyword
-	0,  // 54: ast.ClassDef.bases:type_name -> ast.Node
-	0,  // 55: ast.ClassDef.keywords:type_name -> ast.Node
-	0,  // 56: ast.ClassDef.body:type_name -> ast.Node
-	0,  // 57: ast.ClassDef.decorator_list:type_name -> ast.Node
-	0,  // 58: ast.ClassDef.type_params:type_name -> ast.Node
-	0,  // 59: ast.Compare.left:type_name -> ast.Node
-	0,  // 60: ast.Compare.ops:type_name -> ast.Node
-	0,  // 61: ast.Compare.comparators:type_name -> ast.Node
-	0,  // 62: ast.Dict.keys:type_name -> ast.Node
-	0,  // 63: ast.Dict.values:type_name -> ast.Node
-	0,  // 64: ast.Expr.value:type_name -> ast.Node
-	0,  // 65: ast.For.target:type_name -> ast.Node
-	0,  // 66: ast.For.iter:type_name -> ast.Node
-	0,  // 67: ast.For.body:type_name -> ast.Node
-	8,  // 68: ast.FunctionDef.Args:type_name -> ast.Arguments
-	0,  // 69: ast.FunctionDef.body:type_name -> ast.Node
-	0,  // 70: ast.FunctionDef.returns:type_name -> ast.Node
-	0,  // 71: ast.If.test:type_name -> ast.Node
-	0,  // 72: ast.If.body:type_name -> ast.Node
-	0,  // 73: ast.If.or_else:type_name -> ast.Node
-	0,  // 74: ast.Import.names:type_name -> ast.Node
-	0,  // 75: ast.ImportFrom.names:type_name -> ast.Node
-	0,  // 76: ast.ImportGroup.imports:type_name -> ast.Node
-	0,  // 77: ast.Keyword.value:type_name -> ast.Node
-	0,  // 78: ast.Module.body:type_name -> ast.Node
-	0,  // 79: ast.Return.value:type_name -> ast.Node
-	28, // 80: ast.Subscript.value:type_name -> ast.Name
-	0,  // 81: ast.Subscript.slice:type_name -> ast.Node
-	0,  // 82: ast.Yield.value:type_name -> ast.Node
-	0,  // 83: ast.TypeVar.bound:type_name -> ast.Node
-	84, // [84:84] is the sub-list for method output_type
-	84, // [84:84] is the sub-list for method input_type
-	84, // [84:84] is the sub-list for extension type_name
-	84, // [84:84] is the sub-list for extension extendee
-	0,  // [0:84] is the sub-list for field type_name
+	34, // 33: ast.Node.list_comp:type_name -> ast.ListComp
+	35, // 34: ast.Node.comprehension:type_name -> ast.Comprehension
+	36, // 35: ast.Node.try:type_name -> ast.Try
+	37, // 36: ast.Node.except_handler:type_name -> ast.ExceptHandler
+	38, // 37: ast.Node.raise:type_name -> ast.Raise
+	0,  // 38: ast.Await.value:type_name -> ast.Node
+	0,  // 39: ast.BinOp.left:type_name -> ast.Node
+	0,  // 40: ast.BinOp.op:type_name -> ast.Node
+	0,  // 41: ast.BinOp.right:type_name -> ast.Node
+	0,  // 42: ast.Attribute.value:type_name -> ast.Node
+	28, // 43: ast.AnnAssign.target:type_name -> ast.Name
+	0,  // 44: ast.AnnAssign.annotation:type_name -> ast.Node
+	0,  // 45: ast.Arg.annotation:type_name -> ast.Node
+	7,  // 46: ast.Arguments.args:type_name -> ast.Arg
+	7,  // 47: ast.Arguments.kw_only_args:type_name -> ast.Arg
+	0,  // 48: ast.AsyncFor.target:type_name -> ast.Node
+	0,  // 49: ast.AsyncFor.iter:type_name -> ast.Node
+	0,  // 50: ast.AsyncFor.body:type_name -> ast.Node
+	8,  // 51: ast.AsyncFunctionDef.Args:type_name -> ast.Arguments
+	0,  // 52: ast.AsyncFunctionDef.body:type_name -> ast.Node
+	0,  // 53: ast.AsyncFunctionDef.returns:type_name -> ast.Node
+	0,  // 54: ast.Assign.targets:type_name -> ast.Node
+	0,  // 55: ast.Assign.value:type_name -> ast.Node
+	0,  // 56: ast.Call.func:type_name -> ast.Node
+	0,  // 57: ast.Call.args:type_name -> ast.Node
+	26, // 58: ast.Call.keywords:type_name -> ast.Keyword
+	0,  // 59: ast.ClassDef.bases:type_name -> ast.Node
+	0,  // 60: ast.ClassDef.keywords:type_name -> ast.Node
+	0,  // 61: ast.ClassDef.body:type_name -> ast.Node
+	0,  // 62: ast.ClassDef.decorator_list:type_name -> ast.Node
+	0,  // 63: ast.ClassDef.type_params:type_name -> ast.Node
+	0,  // 64: ast.Compare.left:type_name -> ast.Node
+	0,  // 65: ast.Compare.ops:type_name -> ast.Node
+	0,  // 66: ast.Compare.comparators:type_name -> ast.Node
+	0,  // 67: ast.Dict.keys:type_name -> ast.Node
+	0,  // 68: ast.Dict.values:type_name -> ast.Node
+	0,  // 69: ast.Expr.value:type_name -> ast.Node
+	0,  // 70: ast.For.target:type_name -> ast.Node
+	0,  // 71: ast.For.iter:type_name -> ast.Node
+	0,  // 72: ast.For.body:type_name -> ast.Node
+	8,  // 73: ast.FunctionDef.Args:type_name -> ast.Arguments
+	0,  // 74: ast.FunctionDef.body:type_name -> ast.Node
+	0,  // 75: ast.FunctionDef.returns:type_name -> ast.Node
+	0,  // 76: ast.If.test:type_name -> ast.Node
+	0,  // 77: ast.If.body:type_name -> ast.Node
+	0,  // 78: ast.If.or_else:type_name -> ast.Node
+	0,  // 79: ast.Import.names:type_name -> ast.Node
+	0,  // 80: ast.ImportFrom.names:type_name -> ast.Node
+	0,  // 81: ast.ImportGroup.imports:type_name -> ast.Node
+	0,  // 82: ast.Keyword.value:type_name -> ast.Node
+	0,  // 83: ast.Module.body:type_name -> ast.Node
+	0,  // 84: ast.Return.value:type_name -> ast.Node
+	28, // 85: ast.Subscript.value:type_name -> ast.Name
+	0,  // 86: ast.Subscript.slice:type_name -> ast.Node
+	0,  // 87: ast.Yield.value:type_name -> ast.Node
+	0,  // 88: ast.TypeVar.bound:type_name -> ast.Node
+	0,  // 89: ast.ListComp.elt:type_name -> ast.Node
+	0,  // 90: ast.ListComp.generators:type_name -> ast.Node
+	0,  // 91: ast.Comprehension.target:type_name -> ast.Node
+	0,  // 92: ast.Comprehension.iter:type_name -> ast.Node
+	0,  // 93: ast.Try.body:type_name -> ast.Node
+	0,  // 94: ast.Try.handlers:type_name -> ast.Node
+	0,  // 95: ast.ExceptHandler.type:type_name -> ast.Node
+	0,  // 96: ast.ExceptHandler.body:type_name -> ast.Node
+	0,  // 97: ast.Raise.exc:type_name -> ast.Node
+	0,  // 98: ast.Raise.cause:type_name -> ast.Node
+	99, // [99:99] is the sub-list for method output_type
+	99, // [99:99] is the sub-list for method input_type
+	99, // [99:99] is the sub-list for extension type_name
+	99, // [99:99] is the sub-list for extension extendee
+	0,  // [0:99] is the sub-list for field type_name
 }
 
 func init() { file_protos_ast_ast_proto_init() }
@@ -2730,6 +3121,11 @@ func file_protos_ast_ast_proto_init() {
 		(*Node_BinOp)(nil),
 		(*Node_BitOr)(nil),
 		(*Node_TypeVar)(nil),
+		(*Node_ListComp)(nil),
+		(*Node_Comprehension)(nil),
+		(*Node_Try)(nil),
+		(*Node_ExceptHandler)(nil),
+		(*Node_Raise)(nil),
 	}
 	file_protos_ast_ast_proto_msgTypes[16].OneofWrappers = []any{
 		(*Constant_Str)(nil),
@@ -2742,7 +3138,7 @@ func file_protos_ast_ast_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_protos_ast_ast_proto_rawDesc), len(file_protos_ast_ast_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   34,
+			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -119,3 +119,59 @@ func TypeVar(name string, bound *ast.Node) *ast.Node {
 		},
 	}
 }
+
+func ListComp(elt *ast.Node, generators []*ast.Node) *ast.Node {
+	return &ast.Node{
+		Node: &ast.Node_ListComp{
+			ListComp: &ast.ListComp{
+				Elt:        elt,
+				Generators: generators,
+			},
+		},
+	}
+}
+
+func Comprehension(target *ast.Node, iter *ast.Node) *ast.Node {
+	return &ast.Node{
+		Node: &ast.Node_Comprehension{
+			Comprehension: &ast.Comprehension{
+				Target: target,
+				Iter:   iter,
+			},
+		},
+	}
+}
+
+func Try(body []*ast.Node, handlers []*ast.Node) *ast.Node {
+	return &ast.Node{
+		Node: &ast.Node_Try{
+			Try: &ast.Try{
+				Body:     body,
+				Handlers: handlers,
+			},
+		},
+	}
+}
+
+func ExceptHandler(typ *ast.Node, name string, body []*ast.Node) *ast.Node {
+	return &ast.Node{
+		Node: &ast.Node_ExceptHandler{
+			ExceptHandler: &ast.ExceptHandler{
+				Type: typ,
+				Name: name,
+				Body: body,
+			},
+		},
+	}
+}
+
+func Raise(exc *ast.Node, cause *ast.Node) *ast.Node {
+	return &ast.Node{
+		Node: &ast.Node_Raise{
+			Raise: &ast.Raise{
+				Exc:   exc,
+				Cause: cause,
+			},
+		},
+	}
+}

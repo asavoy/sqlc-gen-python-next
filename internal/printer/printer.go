@@ -133,6 +133,21 @@ func (w *writer) printNode(node *ast.Node, indent int32) {
 	case *ast.Node_TypeVar:
 		w.printTypeVar(n.TypeVar, indent)
 
+	case *ast.Node_ListComp:
+		w.printListComp(n.ListComp, indent)
+
+	case *ast.Node_Comprehension:
+		w.printComprehension(n.Comprehension, indent)
+
+	case *ast.Node_Try:
+		w.printTry(n.Try, indent)
+
+	case *ast.Node_ExceptHandler:
+		w.printExceptHandler(n.ExceptHandler, indent)
+
+	case *ast.Node_Raise:
+		w.printRaise(n.Raise, indent)
+
 	default:
 		panic(n)
 
@@ -525,5 +540,64 @@ func (w *writer) printTypeVar(tv *ast.TypeVar, indent int32) {
 	if tv.Bound != nil {
 		w.print(": ")
 		w.printNode(tv.Bound, indent)
+	}
+}
+
+func (w *writer) printListComp(lc *ast.ListComp, indent int32) {
+	w.print("[")
+	w.printNode(lc.Elt, indent)
+	for _, gen := range lc.Generators {
+		w.print(" ")
+		w.printNode(gen, indent)
+	}
+	w.print("]")
+}
+
+func (w *writer) printComprehension(c *ast.Comprehension, indent int32) {
+	w.print("for ")
+	w.printNode(c.Target, indent)
+	w.print(" in ")
+	w.printNode(c.Iter, indent)
+}
+
+func (w *writer) printTry(t *ast.Try, indent int32) {
+	w.print("try:\n")
+	for i, node := range t.Body {
+		w.printIndent(indent + 1)
+		w.printNode(node, indent+1)
+		if i != len(t.Body)-1 {
+			w.print("\n")
+		}
+	}
+	for _, handler := range t.Handlers {
+		w.print("\n")
+		w.printIndent(indent)
+		w.printNode(handler, indent)
+	}
+}
+
+func (w *writer) printExceptHandler(eh *ast.ExceptHandler, indent int32) {
+	w.print("except ")
+	w.printNode(eh.Type, indent)
+	if eh.Name != "" {
+		w.print(" as ")
+		w.print(eh.Name)
+	}
+	w.print(":\n")
+	for i, node := range eh.Body {
+		w.printIndent(indent + 1)
+		w.printNode(node, indent+1)
+		if i != len(eh.Body)-1 {
+			w.print("\n")
+		}
+	}
+}
+
+func (w *writer) printRaise(r *ast.Raise, indent int32) {
+	w.print("raise ")
+	w.printNode(r.Exc, indent)
+	if r.Cause != nil {
+		w.print(" from ")
+		w.printNode(r.Cause, indent)
 	}
 }
