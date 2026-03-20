@@ -193,6 +193,8 @@ options:
 
 Generated `errors.py` contains:
 
+**Integrity constraint errors** (from `IntegrityError`):
+
 | Exception | PostgreSQL SQLSTATE |
 |---|---|
 | `UniqueViolationError` | 23505 |
@@ -200,11 +202,18 @@ Generated `errors.py` contains:
 | `CheckViolationError` | 23514 |
 | `NotNullViolationError` | 23502 |
 | `ExclusionViolationError` | 23P01 |
-| `QueryError` | All other integrity errors |
 
-All exceptions include a `query_name` attribute for identifying which query failed, and a `cause` attribute containing the original SQLAlchemy exception.
+**Operational errors** (from `OperationalError`):
 
-Generated write-query methods are wrapped:
+| Exception | PostgreSQL SQLSTATE |
+|---|---|
+| `StatementTimeoutError` | 57014 |
+| `DeadlockError` | 40P01 |
+| `SerializationError` | 40001 |
+
+Unrecognized errors in either category fall back to the base `QueryError`. All exceptions include a `query_name` attribute for identifying which query failed, and a `cause` attribute containing the original SQLAlchemy exception.
+
+All query methods are wrapped with both handlers:
 
 ```py
 def create_author(self, *, name: str, bio: str | None) -> models.Author | None:
@@ -212,12 +221,14 @@ def create_author(self, *, name: str, bio: str | None) -> models.Author | None:
         row = self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio}).first()
     except sqlalchemy.exc.IntegrityError as e:
         raise errors._wrap_integrity_error(e, "create_author") from e
+    except sqlalchemy.exc.OperationalError as e:
+        raise errors._wrap_operational_error(e, "create_author") from e
     if row is None:
         return None
     return models.Author(...)
 ```
 
-Read-only queries (SELECT) are not wrapped since they don't raise integrity errors. The error code extraction uses a portable pattern that works across psycopg2, psycopg3, and asyncpg drivers.
+This covers constraint violations on writes and timeouts/deadlocks/serialization failures on any query. The error code extraction uses a portable pattern that works across psycopg2, psycopg3, and asyncpg drivers.
 
 ### Embedded Structs with `sqlc.embed()`
 

@@ -65,6 +65,24 @@ class ExclusionViolationError(QueryError):
     pass
 
 
+class StatementTimeoutError(QueryError):
+    """Raised on statement timeout (PG 57014)."""
+
+    pass
+
+
+class DeadlockError(QueryError):
+    """Raised on deadlock detected (PG 40P01)."""
+
+    pass
+
+
+class SerializationError(QueryError):
+    """Raised on serialization failure (PG 40001)."""
+
+    pass
+
+
 def _wrap_integrity_error(
     e: sqlalchemy.exc.IntegrityError, query_name: str
 ) -> QueryError:
@@ -79,6 +97,19 @@ def _wrap_integrity_error(
         return NotNullViolationError(str(e), query_name, cause=e)
     if pgcode == "23P01":
         return ExclusionViolationError(str(e), query_name, cause=e)
+    return QueryError(str(e), query_name, cause=e)
+
+
+def _wrap_operational_error(
+    e: sqlalchemy.exc.OperationalError, query_name: str
+) -> QueryError:
+    pgcode = getattr(e.orig, "pgcode", None) or getattr(e.orig, "sqlstate", None)
+    if pgcode == "57014":
+        return StatementTimeoutError(str(e), query_name, cause=e)
+    if pgcode == "40P01":
+        return DeadlockError(str(e), query_name, cause=e)
+    if pgcode == "40001":
+        return SerializationError(str(e), query_name, cause=e)
     return QueryError(str(e), query_name, cause=e)
 `
 
@@ -1288,12 +1319,12 @@ func isWriteQuery(q Query) bool {
 		strings.HasPrefix(sql, "MERGE")
 }
 
-func wrapWithErrorHandling(bodyNodes []*pyast.Node, queryName string) []*pyast.Node {
-	raiseNode := poet.Raise(
+func errorRaiseNode(wrapperFunc string, queryName string) *pyast.Node {
+	return poet.Raise(
 		&pyast.Node{
 			Node: &pyast.Node_Call{
 				Call: &pyast.Call{
-					Func: typeRefNode("errors", "_wrap_integrity_error"),
+					Func: typeRefNode("errors", wrapperFunc),
 					Args: []*pyast.Node{
 						poet.Name("e"),
 						poet.Constant(queryName),
@@ -1303,15 +1334,23 @@ func wrapWithErrorHandling(bodyNodes []*pyast.Node, queryName string) []*pyast.N
 		},
 		poet.Name("e"),
 	)
+}
 
-	handler := poet.ExceptHandler(
+func wrapWithErrorHandling(bodyNodes []*pyast.Node, queryName string) []*pyast.Node {
+	integrityHandler := poet.ExceptHandler(
 		typeRefNode("sqlalchemy", "exc", "IntegrityError"),
 		"e",
-		[]*pyast.Node{raiseNode},
+		[]*pyast.Node{errorRaiseNode("_wrap_integrity_error", queryName)},
+	)
+
+	operationalHandler := poet.ExceptHandler(
+		typeRefNode("sqlalchemy", "exc", "OperationalError"),
+		"e",
+		[]*pyast.Node{errorRaiseNode("_wrap_operational_error", queryName)},
 	)
 
 	return []*pyast.Node{
-		poet.Try(bodyNodes, []*pyast.Node{handler}),
+		poet.Try(bodyNodes, []*pyast.Node{integrityHandler, operationalHandler}),
 	}
 }
 
@@ -1431,7 +1470,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				})
 				execAssign := assignNode("row", execCall)
 
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{execAssign}, q.MethodName)...)
 				} else {
@@ -1462,7 +1501,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				)
 				f.Returns = unionWithNone(q.Ret.Annotation())
 			case ":many":
-				f.Body = append(f.Body,
+				manyBody := []*pyast.Node{
 					assignNode("result", exec),
 					poet.Node(
 						&pyast.For{
@@ -1477,10 +1516,15 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 							},
 						},
 					),
-				)
+				}
+				if ctx.C.EmitQueryErrors {
+					f.Body = append(f.Body, wrapWithErrorHandling(manyBody, q.MethodName)...)
+				} else {
+					f.Body = append(f.Body, manyBody...)
+				}
 				f.Returns = subscriptNode("Iterator", q.Ret.Annotation())
 			case ":exec":
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{assignNode("_", exec)}, q.MethodName)...)
 				} else {
@@ -1488,7 +1532,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				}
 				f.Returns = poet.Constant(nil)
 			case ":execrows":
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{assignNode("result", exec)}, q.MethodName)...)
 				} else {
@@ -1499,7 +1543,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				)
 				f.Returns = poet.Name("int")
 			case ":execresult":
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{assignNode("result", exec)}, q.MethodName)...)
 					f.Body = append(f.Body, poet.Return(poet.Name("result")))
@@ -1512,7 +1556,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 			case ":batchexec":
 				q.AddBatchArgs(f.Args)
 				batchExec := batchConnMethodNode("execute", q.ConstantName, q.BatchArgListNode())
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{poet.Expr(batchExec)}, q.MethodName)...)
 				} else {
@@ -1557,7 +1601,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				})
 				execAssign := assignNode("row", execCall)
 
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{execAssign}, q.MethodName)...)
 				} else {
@@ -1589,7 +1633,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				f.Returns = unionWithNone(q.Ret.Annotation())
 			case ":many":
 				stream := connMethodNode("stream", q.ConstantName, q.ArgDictNode())
-				f.Body = append(f.Body,
+				manyBody := []*pyast.Node{
 					assignNode("result", poet.Await(stream)),
 					poet.Node(
 						&pyast.AsyncFor{
@@ -1604,10 +1648,15 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 							},
 						},
 					),
-				)
+				}
+				if ctx.C.EmitQueryErrors {
+					f.Body = append(f.Body, wrapWithErrorHandling(manyBody, q.MethodName)...)
+				} else {
+					f.Body = append(f.Body, manyBody...)
+				}
 				f.Returns = subscriptNode("AsyncIterator", q.Ret.Annotation())
 			case ":exec":
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{assignNode("_", poet.Await(exec))}, q.MethodName)...)
 				} else {
@@ -1615,7 +1664,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				}
 				f.Returns = poet.Constant(nil)
 			case ":execrows":
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{assignNode("result", poet.Await(exec))}, q.MethodName)...)
 				} else {
@@ -1626,7 +1675,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 				)
 				f.Returns = poet.Name("int")
 			case ":execresult":
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{assignNode("result", poet.Await(exec))}, q.MethodName)...)
 					f.Body = append(f.Body, poet.Return(poet.Name("result")))
@@ -1639,7 +1688,7 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 			case ":batchexec":
 				q.AddBatchArgs(f.Args)
 				batchExec := batchConnMethodNode("execute", q.ConstantName, q.BatchArgListNode())
-				if ctx.C.EmitQueryErrors && isWriteQuery(q) {
+				if ctx.C.EmitQueryErrors {
 					f.Body = append(f.Body, wrapWithErrorHandling(
 						[]*pyast.Node{poet.Expr(poet.Await(batchExec))}, q.MethodName)...)
 				} else {

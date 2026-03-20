@@ -39,6 +39,8 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
             row = self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio}).first()
         except sqlalchemy.exc.IntegrityError as e:
             raise errors._wrap_integrity_error(e, "create_author") from e
+        except sqlalchemy.exc.OperationalError as e:
+            raise errors._wrap_operational_error(e, "create_author") from e
         if row is None:
             return None
         return models.Author(
@@ -52,9 +54,16 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
             _ = self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
         except sqlalchemy.exc.IntegrityError as e:
             raise errors._wrap_integrity_error(e, "delete_author") from e
+        except sqlalchemy.exc.OperationalError as e:
+            raise errors._wrap_operational_error(e, "delete_author") from e
 
     def get_author(self, *, id: int) -> models.Author | None:
-        row = self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id}).first()
+        try:
+            row = self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id}).first()
+        except sqlalchemy.exc.IntegrityError as e:
+            raise errors._wrap_integrity_error(e, "get_author") from e
+        except sqlalchemy.exc.OperationalError as e:
+            raise errors._wrap_operational_error(e, "get_author") from e
         if row is None:
             return None
         return models.Author(
@@ -75,6 +84,8 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
             row = (await self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio})).first()
         except sqlalchemy.exc.IntegrityError as e:
             raise errors._wrap_integrity_error(e, "create_author") from e
+        except sqlalchemy.exc.OperationalError as e:
+            raise errors._wrap_operational_error(e, "create_author") from e
         if row is None:
             return None
         return models.Author(
@@ -88,9 +99,16 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
             _ = await self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
         except sqlalchemy.exc.IntegrityError as e:
             raise errors._wrap_integrity_error(e, "delete_author") from e
+        except sqlalchemy.exc.OperationalError as e:
+            raise errors._wrap_operational_error(e, "delete_author") from e
 
     async def get_author(self, *, id: int) -> models.Author | None:
-        row = (await self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id})).first()
+        try:
+            row = (await self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id})).first()
+        except sqlalchemy.exc.IntegrityError as e:
+            raise errors._wrap_integrity_error(e, "get_author") from e
+        except sqlalchemy.exc.OperationalError as e:
+            raise errors._wrap_operational_error(e, "get_author") from e
         if row is None:
             return None
         return models.Author(

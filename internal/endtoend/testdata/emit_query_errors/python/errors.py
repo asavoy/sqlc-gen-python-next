@@ -43,6 +43,24 @@ class ExclusionViolationError(QueryError):
     pass
 
 
+class StatementTimeoutError(QueryError):
+    """Raised on statement timeout (PG 57014)."""
+
+    pass
+
+
+class DeadlockError(QueryError):
+    """Raised on deadlock detected (PG 40P01)."""
+
+    pass
+
+
+class SerializationError(QueryError):
+    """Raised on serialization failure (PG 40001)."""
+
+    pass
+
+
 def _wrap_integrity_error(
     e: sqlalchemy.exc.IntegrityError, query_name: str
 ) -> QueryError:
@@ -57,4 +75,17 @@ def _wrap_integrity_error(
         return NotNullViolationError(str(e), query_name, cause=e)
     if pgcode == "23P01":
         return ExclusionViolationError(str(e), query_name, cause=e)
+    return QueryError(str(e), query_name, cause=e)
+
+
+def _wrap_operational_error(
+    e: sqlalchemy.exc.OperationalError, query_name: str
+) -> QueryError:
+    pgcode = getattr(e.orig, "pgcode", None) or getattr(e.orig, "sqlstate", None)
+    if pgcode == "57014":
+        return StatementTimeoutError(str(e), query_name, cause=e)
+    if pgcode == "40P01":
+        return DeadlockError(str(e), query_name, cause=e)
+    if pgcode == "40001":
+        return SerializationError(str(e), query_name, cause=e)
     return QueryError(str(e), query_name, cause=e)
