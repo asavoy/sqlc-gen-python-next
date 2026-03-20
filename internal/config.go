@@ -18,4 +18,5 @@ type Config struct {
 	InflectionExcludeTableNames []string   `json:"inflection_exclude_table_names"`
 	Overrides                   []Override `json:"overrides"`
 	EmitQuerierProtocol         bool       `json:"emit_querier_protocol"`
+	EmitQueryErrors             bool       `json:"emit_query_errors"`
 }

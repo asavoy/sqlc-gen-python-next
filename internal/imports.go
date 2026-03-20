@@ -156,6 +156,9 @@ func (i *importer) queryImportSpecs(fileName string) (map[string]importSpec, map
 	if i.C.EmitAsyncQuerier {
 		pkg["sqlalchemy.ext.asyncio"] = importSpec{Module: "sqlalchemy.ext.asyncio"}
 	}
+	if i.C.EmitQueryErrors {
+		pkg["sqlalchemy.exc"] = importSpec{Module: "sqlalchemy.exc"}
+	}
 
 	queryValueModelImports := func(qv QueryValue) {
 		if qv.IsStruct() && qv.EmitStruct() {
