@@ -170,6 +170,11 @@ func (i *importer) queryImportSpecs(fileName string) (map[string]importSpec, map
 	// Always import cast from typing for query files
 	std["typing.cast"] = importSpec{Module: "typing", Name: "cast"}
 
+	// Add typing module import when protocols are enabled
+	if i.C.EmitQuerierProtocol {
+		std["typing"] = importSpec{Module: "typing"}
+	}
+
 	for _, q := range i.Queries {
 		if q.SourceName != fileName {
 			continue

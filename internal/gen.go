@@ -1061,6 +1061,70 @@ func asyncQuerierClassDef() *pyast.ClassDef {
 	}
 }
 
+func querierProtocolClassDef() *pyast.ClassDef {
+	return &pyast.ClassDef{
+		Name: "QuerierProtocol",
+		Bases: []*pyast.Node{
+			typeRefNode("typing", "Protocol"),
+		},
+	}
+}
+
+func asyncQuerierProtocolClassDef() *pyast.ClassDef {
+	return &pyast.ClassDef{
+		Name: "AsyncQuerierProtocol",
+		Bases: []*pyast.Node{
+			typeRefNode("typing", "Protocol"),
+		},
+	}
+}
+
+func protocolMethodNode(q Query, async bool) *pyast.Node {
+	args := &pyast.Arguments{
+		Args: []*pyast.Arg{
+			{Arg: "self"},
+		},
+	}
+	q.AddArgs(args)
+
+	// Body is just ... (Ellipsis)
+	body := []*pyast.Node{poet.Name("...")}
+
+	// Determine return type based on command
+	var returns *pyast.Node
+	switch q.Cmd {
+	case ":one":
+		returns = unionWithNone(q.Ret.Annotation())
+	case ":many":
+		if async {
+			returns = subscriptNode("AsyncIterator", q.Ret.Annotation())
+		} else {
+			returns = subscriptNode("Iterator", q.Ret.Annotation())
+		}
+	case ":exec":
+		returns = poet.Constant(nil)
+	case ":execrows":
+		returns = poet.Name("int")
+	case ":execresult":
+		returns = typeRefNode("sqlalchemy", "engine", "Result")
+	}
+
+	if async {
+		return poet.Node(&pyast.AsyncFunctionDef{
+			Name:    q.MethodName,
+			Args:    args,
+			Body:    body,
+			Returns: returns,
+		})
+	}
+	return poet.Node(&pyast.FunctionDef{
+		Name:    q.MethodName,
+		Args:    args,
+		Body:    body,
+		Returns: returns,
+	})
+}
+
 func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 	mod := moduleNode(ctx.SqlcVersion, source)
 	std, pkg := i.queryImportSpecs(source)
@@ -1116,6 +1180,28 @@ func buildQueryTree(ctx *pyTmplCtx, i *importer, source string) *pyast.Node {
 			}
 			mod.Body = append(mod.Body, poet.Node(def))
 		}
+	}
+
+	if ctx.C.EmitQuerierProtocol && ctx.C.EmitSyncQuerier {
+		cls := querierProtocolClassDef()
+		for _, q := range ctx.Queries {
+			if !ctx.OutputQuery(q.SourceName) {
+				continue
+			}
+			cls.Body = append(cls.Body, protocolMethodNode(q, false))
+		}
+		mod.Body = append(mod.Body, poet.Node(cls))
+	}
+
+	if ctx.C.EmitQuerierProtocol && ctx.C.EmitAsyncQuerier {
+		cls := asyncQuerierProtocolClassDef()
+		for _, q := range ctx.Queries {
+			if !ctx.OutputQuery(q.SourceName) {
+				continue
+			}
+			cls.Body = append(cls.Body, protocolMethodNode(q, true))
+		}
+		mod.Body = append(mod.Body, poet.Node(cls))
 	}
 
 	if ctx.C.EmitSyncQuerier {

@@ -3,8 +3,8 @@
 #   sqlc v1.30.0
 # source: query.sql
 from collections.abc import AsyncIterator, Iterator
-from typing import cast
 import typing
+from typing import cast
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -13,41 +13,52 @@ import sqlalchemy.orm
 from querytest import models
 
 
-GET_AUTHOR = """-- name: get_author \:one
-SELECT id, name, bio FROM authors WHERE id = :p1
-"""
-
-LIST_AUTHORS = """-- name: list_authors \:many
-SELECT id, name, bio FROM authors ORDER BY name
-"""
-
-CREATE_AUTHOR = """-- name: create_author \:exec
+CREATE_AUTHOR = """-- name: create_author \\:exec
 INSERT INTO authors (name, bio) VALUES (:p1, :p2)
 """
 
-DELETE_AUTHOR = """-- name: delete_author \:execrows
+
+DELETE_AUTHOR = """-- name: delete_author \\:execrows
 DELETE FROM authors WHERE id = :p1
 """
 
 
+GET_AUTHOR = """-- name: get_author \\:one
+SELECT id, name, bio FROM authors WHERE id = :p1
+"""
+
+
+LIST_AUTHORS = """-- name: list_authors \\:many
+SELECT id, name, bio FROM authors ORDER BY name
+"""
+
+
 class QuerierProtocol(typing.Protocol):
-    def get_author(self, *, id: int) -> models.Author | None: ...
+    def create_author(self, *, name: str, bio: str | None) -> None:
+        ...
 
-    def list_authors(self) -> Iterator[models.Author]: ...
+    def delete_author(self, *, id: int) -> int:
+        ...
 
-    def create_author(self, *, name: str, bio: str | None) -> None: ...
+    def get_author(self, *, id: int) -> models.Author | None:
+        ...
 
-    def delete_author(self, *, id: int) -> int: ...
+    def list_authors(self) -> Iterator[models.Author]:
+        ...
 
 
 class AsyncQuerierProtocol(typing.Protocol):
-    async def get_author(self, *, id: int) -> models.Author | None: ...
+    async def create_author(self, *, name: str, bio: str | None) -> None:
+        ...
 
-    async def list_authors(self) -> AsyncIterator[models.Author]: ...
+    async def delete_author(self, *, id: int) -> int:
+        ...
 
-    async def create_author(self, *, name: str, bio: str | None) -> None: ...
+    async def get_author(self, *, id: int) -> models.Author | None:
+        ...
 
-    async def delete_author(self, *, id: int) -> int: ...
+    async def list_authors(self) -> AsyncIterator[models.Author]:
+        ...
 
 
 class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
@@ -55,6 +66,13 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
 
     def __init__(self, conn: T):
         self._conn = conn
+
+    def create_author(self, *, name: str, bio: str | None) -> None:
+        _ = self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio})
+
+    def delete_author(self, *, id: int) -> int:
+        result = self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
+        return result.rowcount
 
     def get_author(self, *, id: int) -> models.Author | None:
         row = self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id}).first()
@@ -75,19 +93,19 @@ class Querier[T: sqlalchemy.engine.Connection | sqlalchemy.orm.Session]:
                 bio=cast(str | None, row[2]),
             )
 
-    def create_author(self, *, name: str, bio: str | None) -> None:
-        _ = self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio})
-
-    def delete_author(self, *, id: int) -> int:
-        result = self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
-        return result.rowcount
-
 
 class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.asyncio.AsyncSession]:
     _conn: T
 
     def __init__(self, conn: T):
         self._conn = conn
+
+    async def create_author(self, *, name: str, bio: str | None) -> None:
+        _ = await self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio})
+
+    async def delete_author(self, *, id: int) -> int:
+        result = await self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
+        return result.rowcount
 
     async def get_author(self, *, id: int) -> models.Author | None:
         row = (await self._conn.execute(sqlalchemy.text(GET_AUTHOR), {"p1": id})).first()
@@ -107,10 +125,3 @@ class AsyncQuerier[T: sqlalchemy.ext.asyncio.AsyncConnection | sqlalchemy.ext.as
                 name=cast(str, row[1]),
                 bio=cast(str | None, row[2]),
             )
-
-    async def create_author(self, *, name: str, bio: str | None) -> None:
-        _ = await self._conn.execute(sqlalchemy.text(CREATE_AUTHOR), {"p1": name, "p2": bio})
-
-    async def delete_author(self, *, id: int) -> int:
-        result = await self._conn.execute(sqlalchemy.text(DELETE_AUTHOR), {"p1": id})
-        return result.rowcount
