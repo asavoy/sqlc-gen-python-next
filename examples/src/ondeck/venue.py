@@ -4,6 +4,7 @@
 # source: venue.sql
 from collections.abc import AsyncIterator
 import dataclasses
+import datetime
 from typing import cast
 
 import sqlalchemy

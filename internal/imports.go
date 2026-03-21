@@ -48,7 +48,7 @@ func structUses(name string, s Struct) bool {
 
 func queryValueUses(name string, qv QueryValue) bool {
 	if !qv.isEmpty() {
-		if qv.IsStruct() && qv.EmitStruct() {
+		if qv.IsStruct() {
 			if structUses(name, *qv.Struct) {
 				return true
 			}
