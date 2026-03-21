@@ -30,7 +30,7 @@ def test_authors(db: sqlalchemy.engine.Connection):
     assert author_list[0] == new_author
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_authors_async(async_db: sqlalchemy.ext.asyncio.AsyncConnection):
     await apply_migrations_async(async_db, [os.path.dirname(__file__) + "/../authors/schema.sql"])
 

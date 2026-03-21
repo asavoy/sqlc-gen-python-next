@@ -9,7 +9,7 @@ from ondeck import venue as venue_queries
 from dbtest.migrations import apply_migrations_async
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_ondeck(async_db: sqlalchemy.ext.asyncio.AsyncConnection):
     await apply_migrations_async(async_db, [os.path.dirname(__file__) + "/../ondeck/schema"])
 

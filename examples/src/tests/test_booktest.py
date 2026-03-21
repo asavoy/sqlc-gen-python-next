@@ -8,7 +8,7 @@ from booktest import query, models
 from dbtest.migrations import apply_migrations_async
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope="session")
 async def test_books(async_db: sqlalchemy.ext.asyncio.AsyncConnection):
     await apply_migrations_async(async_db, [os.path.dirname(__file__) + "/../booktest/schema.sql"])
 

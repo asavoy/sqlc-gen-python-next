@@ -1,8 +1,8 @@
-import asyncio
 import os
 import random
 
 import pytest
+import pytest_asyncio
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 
@@ -20,7 +20,7 @@ def postgres_uri() -> str:
 
 @pytest.fixture(scope="session")
 def sqlalchemy_connection(postgres_uri) -> sqlalchemy.engine.Connection:
-    engine = sqlalchemy.create_engine(postgres_uri, future=True)
+    engine = sqlalchemy.create_engine(postgres_uri)
     with engine.connect() as conn:
         yield conn
 
@@ -38,7 +38,7 @@ def db(sqlalchemy_connection: sqlalchemy.engine.Connection) -> sqlalchemy.engine
     conn.execute(sqlalchemy.text("SET search_path TO public"))
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def async_sqlalchemy_connection(postgres_uri) -> sqlalchemy.ext.asyncio.AsyncConnection:
     postgres_uri = postgres_uri.replace("postgresql", "postgresql+asyncpg")
     engine = sqlalchemy.ext.asyncio.create_async_engine(postgres_uri)
@@ -46,7 +46,7 @@ async def async_sqlalchemy_connection(postgres_uri) -> sqlalchemy.ext.asyncio.As
         yield conn
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def async_db(async_sqlalchemy_connection: sqlalchemy.ext.asyncio.AsyncConnection) -> sqlalchemy.ext.asyncio.AsyncConnection:
     conn = async_sqlalchemy_connection
     schema_name = f"sqltest_{random.randint(0, 1000)}"
@@ -57,11 +57,3 @@ async def async_db(async_sqlalchemy_connection: sqlalchemy.ext.asyncio.AsyncConn
     await conn.rollback()
     await conn.execute(sqlalchemy.text(f"DROP SCHEMA {schema_name} CASCADE"))
     await conn.execute(sqlalchemy.text("SET search_path TO public"))
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """Change event_loop fixture to session level."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
